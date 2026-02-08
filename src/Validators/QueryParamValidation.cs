@@ -13,7 +13,7 @@ namespace KidFit.Validators
             // Check if order by value match any field
             var fields = typeof(T).GetProperties();
             RuleFor(q => q.OrderBy)
-                .Must(o => o is not null && fields.Any(f => string.Equals(f.Name, o, StringComparison.OrdinalIgnoreCase)))
+                .Must(o => o is null || fields.Any(f => string.Equals(f.Name, o, StringComparison.OrdinalIgnoreCase)))
                 .WithMessage("Order by field not found");
         }
 
