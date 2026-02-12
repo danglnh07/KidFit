@@ -1,26 +1,23 @@
 using AutoMapper;
 using FluentValidation;
-using KidFit.Dtos.Requests;
-using KidFit.Dtos.Responses;
+using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Exceptions;
-using KidFit.Validators;
+using KidFit.Shared.Queries;
 using X.PagedList;
 
 namespace KidFit.Services
 {
-    public class CardService(
-            IUnitOfWork uow,
-            IMapper mapper,
-            IValidator<Card> cardValidator,
-            CardQueryParamValidation queryParamValidator,
-            ILogger<CardService> logger)
+    public class CardService(IUnitOfWork uow,
+                             IMapper mapper,
+                             IValidator<Card> cardValidator,
+                             ILogger<CardService> logger)
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
         private readonly IValidator<Card> _cardValidator = cardValidator;
-        private readonly CardQueryParamValidation _queryParamValidator = queryParamValidator;
+        private readonly IValidator<QueryParamDto> _queryParamValidator = new QueryParamValidator<Card>();
         private readonly ILogger<CardService> _logger = logger;
 
         private async Task<bool> IsCardCategoryExists(Guid categoryId)
@@ -33,7 +30,7 @@ namespace KidFit.Services
             // Check if card category exists
             if (!await IsCardCategoryExists(req.CategoryId))
             {
-                throw new NotFoundException($"Card category {req.CategoryId} not found");
+                throw DependentEntityNotFoundException.Create(typeof(CardCategory).Name);
             }
 
             // Map from DTO to model 
@@ -43,7 +40,9 @@ namespace KidFit.Services
             var validationResult = _cardValidator.Validate(card);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to create card: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Create card
@@ -56,7 +55,7 @@ namespace KidFit.Services
             var result = await _uow.Repo<Card>().SoftDeleteAsync(id);
             if (!result)
             {
-                throw new NotFoundException($"Failed to soft delete card {id}: ID not found");
+                throw NotFoundException.Create(typeof(Card).Name);
             }
             return await _uow.SaveChangesAsync() > 0;
         }
@@ -74,7 +73,9 @@ namespace KidFit.Services
             var queryParamValidationResult = _queryParamValidator.Validate(queryParam);
             if (!queryParamValidationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(queryParamValidationResult.Errors);
+                var message = "Failed to get all cards: query param validation failed";
+                List<string> errors = [.. queryParamValidationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Get the paged list from repo
@@ -85,7 +86,7 @@ namespace KidFit.Services
         public async Task<bool> UpdateCard(Guid id, UpdateCardDto req)
         {
             // Get entity from database by ID 
-            var card = await _uow.Repo<Card>().GetByIdAsync(id) ?? throw new NotFoundException($"Card {id} not found");
+            var card = await _uow.Repo<Card>().GetByIdAsync(id) ?? throw NotFoundException.Create(typeof(Card).Name);
 
             // Validation: check if card category exists yet
             if (
@@ -93,7 +94,7 @@ namespace KidFit.Services
                     req.CategoryId != Guid.Empty &&
                     await IsCardCategoryExists((Guid)req.CategoryId) == false)
             {
-                throw new NotFoundException($"Card category {req.CategoryId} not found");
+                throw DependentEntityNotFoundException.Create(typeof(CardCategory).Name);
             }
 
             // Map from request DTO to database entity
@@ -103,7 +104,9 @@ namespace KidFit.Services
             var validationResult = _cardValidator.Validate(card);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to update card: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Update database entity

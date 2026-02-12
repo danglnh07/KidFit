@@ -1,29 +1,24 @@
 using AutoMapper;
 using FluentValidation;
-using KidFit.Dtos.Requests;
-using KidFit.Dtos.Responses;
+using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Exceptions;
-using KidFit.Validators;
+using KidFit.Shared.Queries;
 using X.PagedList;
 
 namespace KidFit.Services
 {
-    public class CardCategoryService(
-            IUnitOfWork uow,
-            IMapper mapper,
-            IValidator<CardCategory> cardCategoryValidator,
-            CardCategoryQueryParamValidation queryParamValidator,
-            ILogger<CardCategoryService> logger)
+    public class CardCategoryService(IUnitOfWork uow,
+                                     IMapper mapper,
+                                     IValidator<CardCategory> cardCategoryValidator,
+                                     ILogger<CardCategoryService> logger)
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
         private readonly IValidator<CardCategory> _cardCategoryvalidator = cardCategoryValidator;
-        private readonly CardCategoryQueryParamValidation _queryParamValidator = queryParamValidator;
-
+        private readonly IValidator<QueryParamDto> _queryParamValidator = new QueryParamValidator<CardCategory>();
         private readonly ILogger<CardCategoryService> _logger = logger;
-
 
         public async Task<bool> CreateCardCategory(CreateCardCategoryDto req)
         {
@@ -34,7 +29,9 @@ namespace KidFit.Services
             var validationResult = _cardCategoryvalidator.Validate(category);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to create card category: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Create card category
@@ -52,7 +49,7 @@ namespace KidFit.Services
             var result = await _uow.Repo<CardCategory>().SoftDeleteAsync(id);
             if (!result)
             {
-                throw new NotFoundException($"Failed to soft delete card category {id}: ID not found");
+                throw NotFoundException.Create(typeof(CardCategory).Name);
             }
 
             return await _uow.SaveChangesAsync() > 0;
@@ -71,7 +68,9 @@ namespace KidFit.Services
             var queryParamValidationResult = _queryParamValidator.Validate(queryParam);
             if (!queryParamValidationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(queryParamValidationResult.Errors);
+                var message = "Failed to get all card categories: query param validation failed";
+                List<string> errors = [.. queryParamValidationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Get the paged list from repo 
@@ -82,7 +81,7 @@ namespace KidFit.Services
         public async Task<bool> UpdateCardCategory(Guid id, UpdateCardCategoryDto req)
         {
             // Get entity from database by ID
-            var dbCardCategory = await _uow.Repo<CardCategory>().GetByIdAsync(id) ?? throw new NotFoundException($"Card category {id} not found");
+            var dbCardCategory = await _uow.Repo<CardCategory>().GetByIdAsync(id) ?? throw NotFoundException.Create(typeof(CardCategory).Name);
 
             // Map from request DTO to database entity 
             _mapper.Map(req, dbCardCategory);
@@ -91,7 +90,9 @@ namespace KidFit.Services
             var validationResult = _cardCategoryvalidator.Validate(dbCardCategory);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to update card category: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Update database entity

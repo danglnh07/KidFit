@@ -1,4 +1,4 @@
-namespace KidFit.Dtos.Requests
+namespace KidFit.Dtos
 {
     public class QueryParamDto
     {

@@ -1,4 +1,4 @@
-namespace KidFit.Dtos.Requests
+namespace KidFit.Dtos
 {
     public class CreateCardCategoryDto
     {
@@ -7,6 +7,13 @@ namespace KidFit.Dtos.Requests
         public string BorderColor { get; set; } = "";
     }
 
+    public class ViewCardCategoryDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string BorderColor { get; set; } = "";
+    }
     public class UpdateCardCategoryDto
     {
         public string? Name { get; set; } = null;

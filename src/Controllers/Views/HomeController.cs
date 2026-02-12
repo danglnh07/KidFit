@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace KidFit.Controllers
+namespace KidFit.Controllers.Views
 {
     public class HomeController : Controller
     {

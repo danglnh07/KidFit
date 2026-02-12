@@ -10,7 +10,6 @@ namespace KidFit.Data
         public DbSet<Card> Cards { get; set; } = null!;
         public DbSet<Module> Modules { get; set; } = null!;
         public DbSet<Lesson> Lessons { get; set; } = null!;
-        public DbSet<ApplicationUser> Accounts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,19 +1,30 @@
+using System.Security.Claims;
 using System.Text;
+using DotNetEnv;
 using FluentValidation;
 using KidFit.Data;
+using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Services;
-using KidFit.Validators;
+using KidFit.Shared.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using TickerQ.Dashboard.DependencyInjection;
+using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.DbContextFactory;
+using TickerQ.EntityFrameworkCore.DependencyInjection;
+
+// Load .env
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Register controllers with views
 builder.Services.AddControllersWithViews();
 
 // Add DbContext
@@ -22,47 +33,63 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConn"));
 });
 
+// Implement Options pattern
+builder.Services.Configure<MailServiceOptions>(builder.Configuration.GetSection("AppSettings"));
+
 // Add Identity
-// builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-// {
-//     options.Password.RequireDigit = true;
-//     options.Password.RequireLowercase = true;
-//     options.Password.RequireNonAlphanumeric = false;
-//     options.Password.RequireUppercase = true;
-//     options.Password.RequiredLength = 8;
-//     options.User.RequireUniqueEmail = true;
-// })
-// .AddEntityFrameworkStores<AppDbContext>()
-// .AddDefaultTokenProviders();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 8;
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
 
 // Add JWT Authentication
-// var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
-// var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "KidFit";
-// var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "KidFit";
-//
-// builder.Services.AddAuthentication(options =>
-// {
-//     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-// })
-// .AddJwtBearer(options =>
-// {
-//     options.TokenValidationParameters = new TokenValidationParameters
-//     {
-//         ValidateIssuer = true,
-//         ValidateAudience = true,
-//         ValidateLifetime = true,
-//         ValidateIssuerSigningKey = true,
-//         ValidIssuer = jwtIssuer,
-//         ValidAudience = jwtAudience,
-//         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
-//     };
-// });
-//
-// builder.Services.AddAuthorizationBuilder()
-//     .AddPolicy("AdminOnly", policy => policy.RequireRole("ADMIN"))
-//     .AddPolicy("StaffOnly", policy => policy.RequireRole("STAFF"))
-//     .AddPolicy("AdminOrStaff", policy => policy.RequireRole("ADMIN", "STAFF"));
+var jwtSecret = builder.Configuration["AppSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
+var jwtIssuer = builder.Configuration["AppSettings:Issuer"] ?? "KidFit";
+var jwtAudience = builder.Configuration["AppSettings:Audience"] ?? "KidFit";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+    };
+});
+
+// Setup authorization policies
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminOnly", policy => policy.RequireRole(Role.ADMIN.ToString()))
+    .AddPolicy("StaffOnly", policy => policy.RequireRole(Role.STAFF.ToString()))
+    .AddPolicy("AdminOrStaff", policy => policy.RequireRole(Role.ADMIN.ToString(), Role.STAFF.ToString()))
+    .AddPolicy("AdminOrSelf", policy => policy.RequireAssertion(context =>
+    {
+        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var routeId = context.Resource switch
+        {
+            HttpContext http => http.Request.RouteValues["id"]?.ToString(),
+            _ => null
+        };
+
+        return userId == routeId || context.User.IsInRole(Role.ADMIN.ToString());
+    }));
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -78,17 +105,38 @@ builder.Services.AddScoped<CardCategoryService>();
 builder.Services.AddScoped<CardService>();
 builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<LessonService>();
-// builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<MailService>();
+// builder.Services.AddScoped<ITimeTickerManager<TimeTickerEntity>, >();
 
 // Register validators
-builder.Services.AddScoped<IValidator<CardCategory>, CardCategoryValidation>();
-builder.Services.AddScoped<IValidator<Card>, CardValidation>();
-builder.Services.AddScoped<IValidator<Module>, ModuleValidation>();
-builder.Services.AddScoped<IValidator<Lesson>, LessonValidation>();
-builder.Services.AddScoped<CardCategoryQueryParamValidation>();
-builder.Services.AddScoped<CardQueryParamValidation>();
-builder.Services.AddScoped<ModuleQueryParamValidation>();
-builder.Services.AddScoped<LessonQueryParamValidation>();
+builder.Services.AddScoped<IValidator<CardCategory>, CardCategoryValidator>();
+builder.Services.AddScoped<IValidator<Card>, CardValidator>();
+builder.Services.AddScoped<IValidator<Module>, ModuleValidator>();
+builder.Services.AddScoped<IValidator<Lesson>, LessonValidator>();
+builder.Services.AddScoped<IValidator<LoginRequestDto>, LoginRequestValidator>();
+
+// Add TickerQ
+builder.Services.AddTickerQ(options =>
+{
+    // Core configuration
+    options.ConfigureScheduler(schedulerOptions =>
+    {
+        schedulerOptions.MaxConcurrency = 10;
+        schedulerOptions.NodeIdentifier = "notification-server";
+    });
+
+    // options.SetExceptionHandler<NotificationExceptionHandler>();
+
+    // Entity Framework persistence using built-in TickerQDbContext
+    // Dashboard
+    options.AddDashboard(dashboardOptions =>
+    {
+        dashboardOptions.SetBasePath("/admin/tickerq");
+        dashboardOptions.WithBasicAuth("admin", "secure-password");
+    });
+});
 
 // Register API logging
 builder.Services.AddHttpLogging(options =>
@@ -101,7 +149,35 @@ builder.Services.AddHttpLogging(options =>
 builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Define the BearerAuth scheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token like: Bearer {your token}"
+    });
+
+    // Require Bearer token globally (optional but recommended)
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -116,17 +192,38 @@ if (app.Environment.IsDevelopment())
     // app.UseHsts();
 }
 
+app.UseTickerQ();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Run db initilizer
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var provider = scope.ServiceProvider;
+        var context = provider.GetRequiredService<AppDbContext>();
+        var accountService = provider.GetRequiredService<AccountService>();
+        var uow = provider.GetRequiredService<IUnitOfWork>();
+        var logger = provider.GetRequiredService<ILogger<DbInitilizer>>();
+        var config = provider.GetRequiredService<IConfiguration>();
+
+        await DbInitilizer.InitializeAsync(context, accountService, uow, config, logger);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to initialize database: {ex.Message}");
+    }
+}
 
 app.Run();

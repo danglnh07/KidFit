@@ -1,15 +1,16 @@
-using KidFit.Dtos.Requests;
+using KidFit.Dtos;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KidFit.Controllers
+namespace KidFit.Controllers.Apis
 {
     [ApiController]
     [Route("api/card-categories")]
-    // [Authorize]
-    public class CardCategoryController(CardCategoryService cardCategoryService, ILogger<CardCategoryController> logger) : ControllerBase
+    [Authorize]
+    public class CardCategoryController(CardCategoryService cardCategoryService,
+                                        ILogger<CardCategoryController> logger) : ControllerBase
     {
         private readonly CardCategoryService _cardCategoryService = cardCategoryService;
         private readonly ILogger<CardCategoryController> _logger = logger;
@@ -24,7 +25,7 @@ namespace KidFit.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message, errors = ex.Errors });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -39,7 +40,7 @@ namespace KidFit.Controllers
             try
             {
                 var result = await _cardCategoryService.GetCardCategory(id);
-                if (result == null)
+                if (result is null)
                 {
                     return NotFound(new { message = $"Card category {id} not found" });
                 }
@@ -53,7 +54,7 @@ namespace KidFit.Controllers
         }
 
         [HttpPost]
-        // [Authorize(Roles = "ADMIN,STAFF")]
+        [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Create([FromBody] CreateCardCategoryDto request)
         {
             try
@@ -63,7 +64,7 @@ namespace KidFit.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message, errors = ex.Errors });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -73,7 +74,7 @@ namespace KidFit.Controllers
         }
 
         [HttpPut("{id}")]
-        // [Authorize(Roles = "ADMIN,STAFF")]
+        [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCardCategoryDto request)
         {
             try
@@ -87,7 +88,7 @@ namespace KidFit.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message, errors = ex.Errors });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -97,7 +98,7 @@ namespace KidFit.Controllers
         }
 
         [HttpDelete("{id}")]
-        // [Authorize(Roles = "ADMIN,STAFF")]
+        [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

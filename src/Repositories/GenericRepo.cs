@@ -31,6 +31,11 @@ namespace KidFit.Repositories
             await _context.Set<T>().AddAsync(entity);
         }
 
+        public async Task CreateBatch(IList<T> entites)
+        {
+            await _context.Set<T>().AddRangeAsync(entites);
+        }
+
         public async Task<IPagedList<T>> GetAllAsync(QueryParam<T> param)
         {
             IQueryable<T> query = _context.Set<T>();

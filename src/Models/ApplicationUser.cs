@@ -1,4 +1,3 @@
-using KidFit.Shared.Constants;
 using Microsoft.AspNetCore.Identity;
 
 namespace KidFit.Models
@@ -7,9 +6,8 @@ namespace KidFit.Models
     {
         public string FullName { get; set; } = "";
         public string? AvatarUrl { get; set; }
-        public DateTimeOffset TimeCreated { get; set; }
-        public DateTimeOffset TimeUpdated { get; set; }
         public bool IsActive { get; set; } = true;
-        public Role Role { get; set; } = Role.TEACHER;
+        public DateTimeOffset TimeUpdated { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.UtcNow;
     }
 }

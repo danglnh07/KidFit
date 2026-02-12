@@ -1,4 +1,4 @@
-namespace KidFit.Dtos.Requests
+namespace KidFit.Dtos
 {
     public class CreateModuleDto
     {
@@ -8,6 +8,14 @@ namespace KidFit.Dtos.Requests
         public int TotalSlot { get; set; }
     }
 
+    public class ViewModuleDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int CoreSlot { get; set; }
+        public int TotalSlot { get; set; }
+    }
     public class UpdateModuleDto
     {
         public string? Name { get; set; } = null;

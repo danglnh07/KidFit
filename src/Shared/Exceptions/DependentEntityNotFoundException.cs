@@ -1,13 +1,25 @@
+using System.Text;
+
 namespace KidFit.Shared.Exceptions
 {
-    public class DependentEntityNotFoundException(string msg) : Exception(msg)
+    public class DependentEntityNotFoundException : Exception
     {
-        public List<Guid>? MissingIds { get; set; }
+        private DependentEntityNotFoundException(string message) : base(message) { }
 
-        public DependentEntityNotFoundException(string entityName, List<Guid> missingIds)
-            : this($"Some {entityName} IDs do not exist in database: {string.Join(", ", missingIds)}")
+        public static DependentEntityNotFoundException Create(string entity, int count)
         {
-            MissingIds = missingIds;
+            var msg = new StringBuilder();
+
+            msg.AppendLine("Dependent entities not exists");
+            msg.AppendLine($"Entity: {entity}");
+            msg.AppendLine($"Missing: {count}");
+
+            return new(msg.ToString());
+        }
+
+        public static DependentEntityNotFoundException Create(string entity)
+        {
+            return Create(entity, 1);
         }
     }
 }

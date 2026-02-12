@@ -1,6 +1,6 @@
 using KidFit.Shared.Constants;
 
-namespace KidFit.Dtos.Requests
+namespace KidFit.Dtos
 {
     public class CreateLessonDto
     {
@@ -9,6 +9,16 @@ namespace KidFit.Dtos.Requests
         public Guid ModuleId { get; set; }
         public Year Year { get; set; }
         public List<Guid> CardIds { get; set; } = [];
+    }
+
+    public class ViewLessonDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Content { get; set; } = "";
+        public Year Year { get; set; }
+        public ViewModuleDto Module { get; set; } = new();
+        public List<ViewCardDto> Cards { get; set; } = [];
     }
 
     public class UpdateLessonDto

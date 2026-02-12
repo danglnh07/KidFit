@@ -1,11 +1,10 @@
 using AutoMapper;
 using FluentValidation;
-using KidFit.Dtos.Requests;
-using KidFit.Dtos.Responses;
+using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Exceptions;
-using KidFit.Validators;
+using KidFit.Shared.Queries;
 using X.PagedList;
 
 namespace KidFit.Services
@@ -14,13 +13,12 @@ namespace KidFit.Services
             IUnitOfWork uow,
             IMapper mapper,
             IValidator<Module> moduleValidator,
-            ModuleQueryParamValidation queryParamValidator,
             ILogger<ModuleService> logger)
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
         private readonly IValidator<Module> _moduleValidator = moduleValidator;
-        private readonly ModuleQueryParamValidation _queryParamValidator = queryParamValidator;
+        private readonly IValidator<QueryParamDto> _queryParamValidator = new QueryParamValidator<Module>();
         private readonly ILogger<ModuleService> _logger = logger;
 
         public async Task<bool> CreateModule(CreateModuleDto req)
@@ -32,7 +30,9 @@ namespace KidFit.Services
             var validationResult = _moduleValidator.Validate(card);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to create module: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Create module
@@ -50,7 +50,7 @@ namespace KidFit.Services
             var result = await _uow.Repo<Module>().SoftDeleteAsync(id);
             if (!result)
             {
-                throw new NotFoundException($"Failed to soft delete module {id}: ID not found");
+                throw NotFoundException.Create(typeof(Module).Name);
             }
 
             return await _uow.SaveChangesAsync() > 0;
@@ -69,7 +69,9 @@ namespace KidFit.Services
             var queryParamValidationResult = _queryParamValidator.Validate(queryParam);
             if (!queryParamValidationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(queryParamValidationResult.Errors);
+                var message = "Failed to get all modules: query param validation failed";
+                List<string> errors = [.. queryParamValidationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Get the paged list from repo
@@ -80,7 +82,7 @@ namespace KidFit.Services
         public async Task<bool> UpdateModule(Guid id, UpdateModuleDto req)
         {
             // Get entity from database by ID
-            var dbModule = await _uow.Repo<Module>().GetByIdAsync(id) ?? throw new NotFoundException($"Module {id} not found");
+            var dbModule = await _uow.Repo<Module>().GetByIdAsync(id) ?? throw NotFoundException.Create(typeof(Module).Name);
 
             // Map from request DTO to database entity
             _mapper.Map(req, dbModule);
@@ -89,7 +91,9 @@ namespace KidFit.Services
             var validationResult = _moduleValidator.Validate(dbModule);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to update module: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Update database entity

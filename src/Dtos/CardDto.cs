@@ -1,4 +1,4 @@
-namespace KidFit.Dtos.Requests
+namespace KidFit.Dtos
 {
     public class CreateCardDto
     {
@@ -8,6 +8,15 @@ namespace KidFit.Dtos.Requests
         public Guid CategoryId { get; set; }
     }
 
+    public class ViewCardDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Image { get; set; } = "";
+        public ViewCardCategoryDto CardCategory { get; set; } = new();
+
+    }
     public class UpdateCardDto
     {
         public string? Name { get; set; } = null;

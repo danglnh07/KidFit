@@ -10,6 +10,7 @@ namespace KidFit.Repositories
         Task<T?> GetByIdAsync(Guid id);
         Task<IPagedList<T>> GetAllAsync(QueryParam<T> param);
         Task CreateAsync(T entity);
+        Task CreateBatch(IList<T> entites);
         void Update(T entity);
         Task<bool> SoftDeleteAsync(Guid id);
         Task<int> BulkSoftDeleteAsync(Expression<Func<T, bool>> predicate);

@@ -1,34 +1,34 @@
-using KidFit.Dtos.Requests;
+using KidFit.Dtos;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KidFit.Controllers
+namespace KidFit.Controllers.Apis
 {
     [ApiController]
-    [Route("api/cards")]
-    // [Authorize]
-    public class CardController(CardService cardService, ILogger<CardController> logger) : ControllerBase
+    [Route("api/[controller]")]
+    [Authorize]
+    public class LessonController(LessonService lessonService, ILogger<LessonController> logger) : ControllerBase
     {
-        private readonly CardService _cardService = cardService;
-        private readonly ILogger<CardController> _logger = logger;
+        private readonly LessonService _lessonService = lessonService;
+        private readonly ILogger<LessonController> _logger = logger;
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] QueryParamDto queryParam)
         {
             try
             {
-                var result = await _cardService.GetAllCards(queryParam);
+                var result = await _lessonService.GetAllLessons(queryParam);
                 return Ok(result);
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message, errors = ex.Errors });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error getting cards: {ex.Message}");
+                _logger.LogError($"Error getting lessons: {ex.Message}");
                 return StatusCode(500, new { message = "An error occurred" });
             }
         }
@@ -38,76 +38,84 @@ namespace KidFit.Controllers
         {
             try
             {
-                var result = await _cardService.GetCard(id);
+                var result = await _lessonService.GetLesson(id);
                 if (result == null)
                 {
-                    return NotFound(new { message = $"Card {id} not found" });
+                    return NotFound(new { message = $"Lesson {id} not found" });
                 }
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error getting card {id}: {ex.Message}");
+                _logger.LogError($"Error getting lesson {id}: {ex.Message}");
                 return StatusCode(500, new { message = "An error occurred" });
             }
         }
 
         [HttpPost]
-        // [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Create([FromBody] CreateCardDto request)
+        [Authorize(Roles = "ADMIN,STAFF")]
+        public async Task<IActionResult> Create([FromBody] CreateLessonDto request)
         {
             try
             {
-                var result = await _cardService.CreateCard(request);
-                return Ok(new { success = result, message = "Card created successfully" });
+                var result = await _lessonService.CreateLesson(request);
+                return Ok(new { success = result, message = "Lesson created successfully" });
             }
             catch (NotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (DependentEntityNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message, errors = ex.Errors });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error creating card: {ex.Message}");
+                _logger.LogError($"Error creating lesson: {ex.Message}");
                 return StatusCode(500, new { message = "An error occurred" });
             }
         }
 
         [HttpPut("{id}")]
-        // [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCardDto request)
+        [Authorize(Roles = "ADMIN,STAFF")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLessonDto request)
         {
             try
             {
-                var result = await _cardService.UpdateCard(id, request);
-                return Ok(new { success = result, message = "Card updated successfully" });
+                var result = await _lessonService.UpdateLesson(id, request);
+                return Ok(new { success = result, message = "Lesson updated successfully" });
             }
             catch (NotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (DependentEntityNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message, errors = ex.Errors });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error updating card {id}: {ex.Message}");
+                _logger.LogError($"Error updating lesson {id}: {ex.Message}");
                 return StatusCode(500, new { message = "An error occurred" });
             }
         }
 
         [HttpDelete("{id}")]
-        // [Authorize(Roles = "ADMIN,STAFF")]
+        [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                var result = await _cardService.DeleteCard(id);
-                return Ok(new { success = result, message = "Card deleted successfully" });
+                var result = await _lessonService.DeleteLesson(id);
+                return Ok(new { success = result, message = "Lesson deleted successfully" });
             }
             catch (NotFoundException ex)
             {
@@ -115,7 +123,7 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deleting card {id}: {ex.Message}");
+                _logger.LogError($"Error deleting lesson {id}: {ex.Message}");
                 return StatusCode(500, new { message = "An error occurred" });
             }
         }

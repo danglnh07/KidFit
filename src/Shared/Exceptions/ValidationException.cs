@@ -1,7 +1,18 @@
+using System.Text;
+
 namespace KidFit.Shared.Exceptions
 {
-    public class ValidationException(List<FluentValidation.Results.ValidationFailure> errors) : Exception($"Valiation failed: {errors}")
+    public class ValidationException : Exception
     {
-        public List<FluentValidation.Results.ValidationFailure> Errors { get; set; } = errors;
+        private ValidationException(string message) : base(message) { }
+
+        public static ValidationException Create(string message, List<string> errors)
+        {
+            var msg = new StringBuilder();
+            msg.AppendLine($"Validation failed: {message}");
+            errors.ForEach(e => msg.AppendLine($"- {e}"));
+            return new(msg.ToString());
+
+        }
     }
 }

@@ -1,11 +1,10 @@
 using AutoMapper;
 using FluentValidation;
-using KidFit.Dtos.Requests;
-using KidFit.Dtos.Responses;
+using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Exceptions;
-using KidFit.Validators;
+using KidFit.Shared.Queries;
 using X.PagedList;
 
 namespace KidFit.Services
@@ -14,13 +13,12 @@ namespace KidFit.Services
             IUnitOfWork uow,
             IMapper mapper,
             IValidator<Lesson> lessonValidator,
-            LessonQueryParamValidation queryParamValidator,
             ILogger<LessonService> logger)
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
         private readonly IValidator<Lesson> _lessonValidator = lessonValidator;
-        private readonly LessonQueryParamValidation _queryParamValidator = queryParamValidator;
+        private readonly IValidator<QueryParamDto> _queryParamValidator = new QueryParamValidator<Lesson>();
         private readonly ILogger<LessonService> _logger = logger;
 
         private async Task<bool> IsModuleExist(Guid moduleId)
@@ -39,16 +37,14 @@ namespace KidFit.Services
             // Validation: check if module exists yet
             if (!await IsModuleExist(req.ModuleId))
             {
-                throw new NotFoundException($"Module {req.ModuleId} not found");
+                throw DependentEntityNotFoundException.Create(typeof(Module).Name);
             }
 
             // Validation: check if all cards exists yet
             var dbCardCount = await AreAnyCardsMissing(req.CardIds);
             if (dbCardCount != req.CardIds.Count)
             {
-                var msg = $"Some card IDs do not exist in database (requested: {req.CardIds.Count}; found: {dbCardCount}).";
-                _logger.LogWarning(msg);
-                throw new DependentEntityNotFoundException("cards", req.CardIds);
+                throw DependentEntityNotFoundException.Create(typeof(Card).Name, req.CardIds.Count - dbCardCount);
             }
 
             // Map from DTO to model
@@ -58,7 +54,9 @@ namespace KidFit.Services
             var validationResult = _lessonValidator.Validate(lesson);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to create lesson: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Create lesson 
@@ -73,7 +71,7 @@ namespace KidFit.Services
             var result = await _uow.Repo<Lesson>().SoftDeleteAsync(id);
             if (!result)
             {
-                throw new NotFoundException($"Failed to soft delete lesson {id}: ID not found");
+                throw NotFoundException.Create(typeof(Lesson).Name);
             }
             return await _uow.SaveChangesAsync() > 0;
         }
@@ -91,7 +89,9 @@ namespace KidFit.Services
             var queryParamValidationResult = _queryParamValidator.Validate(queryParam);
             if (!queryParamValidationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(queryParamValidationResult.Errors);
+                var message = "Failed to get all lessons: query param validation failed";
+                List<string> errors = [.. queryParamValidationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Get the paged list from repo
@@ -102,7 +102,7 @@ namespace KidFit.Services
         public async Task<bool> UpdateLesson(Guid id, UpdateLessonDto req)
         {
             // Get entity from database by ID
-            var dbLesson = await _uow.Repo<Lesson>().GetByIdAsync(id) ?? throw new NotFoundException($"Lesson {id} not found");
+            var dbLesson = await _uow.Repo<Lesson>().GetByIdAsync(id) ?? throw NotFoundException.Create(typeof(Lesson).Name);
 
             // Validation: check if module exists yet
             if (
@@ -110,7 +110,7 @@ namespace KidFit.Services
                     req.ModuleId != Guid.Empty &&
                     await IsModuleExist((Guid)req.ModuleId) == false)
             {
-                throw new NotFoundException($"Module {req.ModuleId} not found");
+                throw DependentEntityNotFoundException.Create(typeof(Module).Name);
             }
 
             // Validation: check if all cards exists yet
@@ -119,9 +119,7 @@ namespace KidFit.Services
                 var dbCardCount = await AreAnyCardsMissing(req.CardIds);
                 if (dbCardCount != req.CardIds.Count)
                 {
-                    var msg = $"Some card IDs do not exist in database (requested: {req.CardIds.Count}; found: {dbCardCount}).";
-                    _logger.LogWarning(msg);
-                    throw new DependentEntityNotFoundException("cards", req.CardIds);
+                    throw DependentEntityNotFoundException.Create(typeof(Card).Name, req.CardIds.Count - dbCardCount);
                 }
             }
 
@@ -132,7 +130,9 @@ namespace KidFit.Services
             var validationResult = _lessonValidator.Validate(dbLesson);
             if (!validationResult.IsValid)
             {
-                throw new Shared.Exceptions.ValidationException(validationResult.Errors);
+                var message = "Failed to update lesson: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
             }
 
             // Update database entity

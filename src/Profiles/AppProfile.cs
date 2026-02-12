@@ -1,6 +1,5 @@
 using AutoMapper;
-using KidFit.Dtos.Requests;
-using KidFit.Dtos.Responses;
+using KidFit.Dtos;
 using KidFit.Models;
 using X.PagedList;
 
@@ -34,10 +33,15 @@ namespace KidFit.Profiles
 
     public class PagedListConverter<TSource, TDestination> : ITypeConverter<IPagedList<TSource>, IPagedList<TDestination>>
     {
-        public IPagedList<TDestination> Convert(IPagedList<TSource> source, IPagedList<TDestination> destination, ResolutionContext context)
+        public IPagedList<TDestination> Convert(IPagedList<TSource> source,
+                                                IPagedList<TDestination> destination,
+                                                ResolutionContext context)
         {
             var mappedItems = context.Mapper.Map<List<TDestination>>(source);
-            return new StaticPagedList<TDestination>(mappedItems, source.PageNumber, source.PageSize, source.TotalItemCount);
+            return new StaticPagedList<TDestination>(mappedItems,
+                                                     source.PageNumber,
+                                                     source.PageSize,
+                                                     source.TotalItemCount);
         }
     }
 }
