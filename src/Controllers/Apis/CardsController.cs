@@ -77,7 +77,7 @@ namespace KidFit.Controllers.Apis
         }
 
         [HttpPut("{id}")]
-        // [Authorize(Roles = "ADMIN,STAFF")]
+        [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCardDto request)
         {
             try
