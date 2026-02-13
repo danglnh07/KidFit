@@ -1,6 +1,7 @@
 using KidFit.Dtos;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace KidFit.Controllers.Apis
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CardController(CardService cardService, ILogger<CardController> logger) : ControllerBase
     {
         private readonly CardService _cardService = cardService;

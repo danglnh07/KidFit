@@ -1,6 +1,7 @@
 using KidFit.Dtos;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace KidFit.Controllers.Apis
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class LessonController(LessonService lessonService, ILogger<LessonController> logger) : ControllerBase
     {
         private readonly LessonService _lessonService = lessonService;

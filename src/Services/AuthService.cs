@@ -62,7 +62,7 @@ namespace KidFit.Services
             }
 
             // Check if password match
-            var result = await _signInManager.CheckPasswordSignInAsync(user, req.Password, false);
+            var result = await _signInManager.PasswordSignInAsync(user, req.Password, false, false);
             if (!result.Succeeded)
             {
                 _logger.LogWarning($"Login failed: Invalid password for user {(req.Username is not null ? req.Username : req.Email)}");

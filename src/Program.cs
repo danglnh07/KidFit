@@ -8,7 +8,6 @@ using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Services;
 using KidFit.Shared.Constants;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +15,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
-using TickerQ.EntityFrameworkCore.DbContextFactory;
-using TickerQ.EntityFrameworkCore.DependencyInjection;
 
 // Load .env
 Env.Load();
@@ -49,17 +46,18 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Auth/Login";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
+});
+
 // Add JWT Authentication
 var jwtSecret = builder.Configuration["AppSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
 var jwtIssuer = builder.Configuration["AppSettings:Issuer"] ?? "KidFit";
 var jwtAudience = builder.Configuration["AppSettings:Audience"] ?? "KidFit";
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
+builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
