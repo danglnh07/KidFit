@@ -11,19 +11,45 @@ namespace KidFit.Profiles
         {
             CreateMap<CreateCardCategoryDto, CardCategory>();
             CreateMap<CardCategory, ViewCardCategoryDto>();
-            CreateMap<UpdateCardCategoryDto, CardCategory>();
+            CreateMap<UpdateCardCategoryDto, CardCategory>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
+                {
+                    if (srcMember is null) return false;
+                    if (srcMember is string str && string.IsNullOrWhiteSpace(str)) return false;
+                    return true;
+                }));
 
             CreateMap<CreateCardDto, Card>();
             CreateMap<Card, ViewCardDto>();
-            CreateMap<UpdateCardDto, Card>();
+            CreateMap<UpdateCardDto, Card>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
+                {
+                    if (srcMember is null) return false;
+                    if (srcMember is string str && string.IsNullOrWhiteSpace(str)) return false;
+                    return true;
+
+                }));
 
             CreateMap<CreateLessonDto, Lesson>();
-            CreateMap<UpdateLessonDto, Lesson>();
             CreateMap<Lesson, ViewLessonDto>();
+            CreateMap<UpdateLessonDto, Lesson>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
+                {
+                    if (srcMember is null) return false;
+                    if (srcMember is null) return false;
+                    return true;
+                }));
 
             CreateMap<CreateModuleDto, Module>();
-            CreateMap<UpdateModuleDto, Module>();
             CreateMap<Module, ViewModuleDto>();
+            CreateMap<UpdateModuleDto, Module>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
+                {
+                    if (srcMember is null) return false;
+                    if (srcMember is string str && string.IsNullOrWhiteSpace(str)) return false;
+                    if (srcMember is int num && num == 0) return false;
+                    return true;
+                }));
 
             // Paged list mappings: AutoMapper don't know how to map IPagedList
             // since they also contain paging metadata, so we need to manually instruct it
