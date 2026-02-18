@@ -12,7 +12,6 @@ namespace KidFit.Shared.Exceptions
             msg.AppendLine($"Validation failed: {message}");
             errors.ForEach(e => msg.AppendLine($"- {e}"));
             return new(msg.ToString());
-
         }
     }
 }
