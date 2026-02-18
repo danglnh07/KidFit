@@ -1,18 +1,10 @@
+using KidFit.Shared.TaskRequests;
 using TickerQ.Utilities;
 using TickerQ.Utilities.Base;
 using TickerQ.Utilities.Enums;
 
 namespace KidFit.Services
 {
-    public class WelcomeEmailRequest
-    {
-        public string Id { get; set; } = "";
-        public string Username { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string Fullname { get; set; } = "";
-        public string Token { get; set; } = "";
-    }
-
     public class TaskScheduleService(MailService mailService, ILogger<TaskScheduleService> logger)
     {
         private readonly MailService _mailService = mailService;
@@ -24,7 +16,7 @@ namespace KidFit.Services
             _logger.LogInformation($"Start job: Send welcome email");
 
             // Get parameters from context
-            var request = await TickerRequestProvider.GetRequestAsync<WelcomeEmailRequest>(ctx, canceled);
+            var request = await TickerRequestProvider.GetRequestAsync<SendWelcomeEmailRequest>(ctx, canceled);
 
             // Prepare email template
             var tmpl = MailService.PrepareWelcomeEmailTemplate(request.Fullname, request.Username, request.Id, request.Token);
