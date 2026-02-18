@@ -18,9 +18,7 @@ namespace KidFit.Services
         private readonly IConfiguration _configuration = configuration;
         private readonly ILogger<AuthService> _logger = logger;
 
-
-
-        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto req)
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto req, bool generateToken = false)
         {
             // Validate login request DTO
             var validationResult = _loginValidator.Validate(req);
@@ -68,6 +66,8 @@ namespace KidFit.Services
                 _logger.LogWarning($"Login failed: Invalid password for user {(req.Username is not null ? req.Username : req.Email)}");
                 throw IdentityException.Create("Login failed: incorrect login credentials");
             }
+
+            if (generateToken) return new();
 
             // Get user roles
             var roles = await _userManager.GetRolesAsync(user);

@@ -21,6 +21,11 @@ namespace KidFit.Repositories
                 );
         }
 
+        public async Task<int> CountAsync()
+        {
+            return await _context.Set<T>().CountAsync();
+        }
+
         public Task<int> CountExists(List<Guid> ids)
         {
             return _context.Set<T>().CountAsync(t => ids.Contains(t.Id));

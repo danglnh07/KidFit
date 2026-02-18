@@ -15,5 +15,6 @@ namespace KidFit.Repositories
         Task<bool> SoftDeleteAsync(Guid id);
         Task<int> BulkSoftDeleteAsync(Expression<Func<T, bool>> predicate);
         Task<int> CountExists(List<Guid> ids);
+        Task<int> CountAsync();
     }
 }

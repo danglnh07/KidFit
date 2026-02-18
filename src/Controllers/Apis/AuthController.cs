@@ -19,7 +19,7 @@ namespace KidFit.Controllers.Apis
         {
             try
             {
-                var result = await _authService.LoginAsync(request);
+                var result = await _authService.LoginAsync(request, true);
                 return Ok(result);
             }
             catch (ValidationException ex)
