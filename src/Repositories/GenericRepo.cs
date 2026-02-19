@@ -13,11 +13,12 @@ namespace KidFit.Repositories
 
         public async Task<int> BulkSoftDeleteAsync(Expression<Func<T, bool>> predicate)
         {
+            var now = DateTimeOffset.UtcNow; // Use variable so that SQLite can translate in unit test :v
             return await _context.Set<T>()
                 .Where(predicate)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(x => x.IsDeleted, true)
-                    .SetProperty(x => x.TimeUpdated, DateTimeOffset.UtcNow)
+                    .SetProperty(x => x.TimeUpdated, now)
                 );
         }
 
@@ -26,9 +27,9 @@ namespace KidFit.Repositories
             return await _context.Set<T>().CountAsync();
         }
 
-        public Task<int> CountExists(List<Guid> ids)
+        public async Task<int> CountExistAsync(List<Guid> ids)
         {
-            return _context.Set<T>().CountAsync(t => ids.Contains(t.Id));
+            return await _context.Set<T>().CountAsync(x => ids.Contains(x.Id));
         }
 
         public async Task CreateAsync(T entity)
@@ -36,7 +37,7 @@ namespace KidFit.Repositories
             await _context.Set<T>().AddAsync(entity);
         }
 
-        public async Task CreateBatch(IList<T> entites)
+        public async Task CreateBatchAsync(IList<T> entites)
         {
             await _context.Set<T>().AddRangeAsync(entites);
         }
@@ -58,6 +59,11 @@ namespace KidFit.Repositories
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(item => item.Id == id);
+        }
+
+        public async Task<bool> IsExistAsync(Guid id)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(item => item.Id == id) is not null;
         }
 
         public async Task<bool> SoftDeleteAsync(Guid id)
