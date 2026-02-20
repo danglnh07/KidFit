@@ -9,7 +9,7 @@ namespace KidFit.Repositories
 {
     public class GenericRepo<T>(AppDbContext context) : IGenericRepo<T> where T : ModelBase
     {
-        private readonly AppDbContext _context = context;
+        protected readonly AppDbContext _context = context;
 
         public async Task<int> BulkSoftDeleteAsync(Expression<Func<T, bool>> predicate)
         {

@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using KidFit.Dtos;
 
 namespace KidFit.Shared.Queries
 {
@@ -10,25 +9,38 @@ namespace KidFit.Shared.Queries
         public Expression<Func<T, object>>? OrderBy { get; set; }
         public bool? IsAsc { get; set; } = true;
 
-        public QueryParam(QueryParamDto dto)
+        private Expression<Func<T, object>>? FromStringToExpression(string? orderBy)
         {
-            Page = dto.Page;
-            Size = dto.Size;
-            IsAsc = dto.IsAsc;
+            if (orderBy is null) return null;
 
             foreach (var prop in typeof(T).GetProperties())
             {
-                if (string.Equals(prop.Name, dto.OrderBy, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(prop.Name, orderBy, StringComparison.OrdinalIgnoreCase))
                 {
                     var parameter = Expression.Parameter(typeof(T), "t");
                     var propertyAccess = Expression.Property(parameter, prop);
                     var converted = Expression.Convert(propertyAccess, typeof(object));
-
-                    OrderBy = Expression.Lambda<Func<T, object>>(converted, parameter);
-
-                    return;
+                    return Expression.Lambda<Func<T, object>>(converted, parameter);
                 }
             }
+
+            throw new ArgumentException($"OrderBy property {orderBy} not found in type {typeof(T).Name}");
+        }
+
+        public QueryParam(int page, int size, string? orderBy, bool? isAsc)
+        {
+            Page = page;
+            Size = size;
+            IsAsc = isAsc;
+            OrderBy = FromStringToExpression(orderBy);
+        }
+
+        public QueryParam(int page, int size)
+        {
+            Page = page;
+            Size = size;
+            IsAsc = null;
+            OrderBy = null;
         }
     }
 }

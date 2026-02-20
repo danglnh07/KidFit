@@ -179,7 +179,7 @@ namespace KidFit.Tests.Repositories
             await _context.Modules.AddRangeAsync(modules);
             await _context.SaveChangesAsync();
 
-            var param = new QueryParam<Module>(new Dtos.QueryParamDto { Page = 1, Size = 10 });
+            var param = new QueryParam<Module>(page: 1, size: 10);
             var result = await _repo.GetAllAsync(param);
 
             Assert.NotNull(result);
@@ -201,7 +201,7 @@ namespace KidFit.Tests.Repositories
             await _context.Modules.AddRangeAsync(modules);
             await _context.SaveChangesAsync();
 
-            var param = new QueryParam<Module>(new Dtos.QueryParamDto { Page = 1, Size = 10, OrderBy = "Name", IsAsc = true });
+            var param = new QueryParam<Module>(page: 1, size: 10, orderBy: "Name", isAsc: true);
             var result = await _repo.GetAllAsync(param);
 
             Assert.NotNull(result);
@@ -221,7 +221,7 @@ namespace KidFit.Tests.Repositories
             await _context.Modules.AddRangeAsync(modules);
             await _context.SaveChangesAsync();
 
-            var param = new QueryParam<Module>(new Dtos.QueryParamDto { Page = 1, Size = 10, OrderBy = "Name", IsAsc = false });
+            var param = new QueryParam<Module>(page: 1, size: 10, orderBy: "Name", isAsc: false);
             var result = await _repo.GetAllAsync(param);
 
             Assert.NotNull(result);
