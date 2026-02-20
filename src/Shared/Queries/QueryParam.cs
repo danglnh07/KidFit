@@ -29,16 +29,16 @@ namespace KidFit.Shared.Queries
 
         public QueryParam(int page, int size, string? orderBy, bool? isAsc)
         {
-            Page = page;
-            Size = size;
+            Page = page < 1 ? 1 : page;
+            Size = size < 0 ? 5 : size;
             IsAsc = isAsc;
             OrderBy = FromStringToExpression(orderBy);
         }
 
         public QueryParam(int page, int size)
         {
-            Page = page;
-            Size = size;
+            Page = page < 1 ? 1 : page;
+            Size = size < 0 ? 5 : size;
             IsAsc = null;
             OrderBy = null;
         }

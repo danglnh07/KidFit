@@ -1,6 +1,4 @@
-using AutoMapper;
 using FluentValidation;
-using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Exceptions;
@@ -9,24 +7,16 @@ using X.PagedList;
 
 namespace KidFit.Services
 {
-    public class CardCategoryService(IUnitOfWork uow,
-                                     IMapper mapper,
-                                     IValidator<CardCategory> cardCategoryValidator,
-                                     ILogger<CardCategoryService> logger)
+    public class CardCategoryService(IUnitOfWork uow, IValidator<CardCategory> validator, ILogger<CardCategoryService> logger)
     {
         private readonly IUnitOfWork _uow = uow;
-        private readonly IMapper _mapper = mapper;
-        private readonly IValidator<CardCategory> _cardCategoryvalidator = cardCategoryValidator;
-        private readonly IValidator<QueryParamDto> _queryParamValidator = new QueryParamValidator<CardCategory>();
+        private readonly IValidator<CardCategory> _validator = validator;
         private readonly ILogger<CardCategoryService> _logger = logger;
 
-        public async Task<bool> CreateCardCategory(CreateCardCategoryDto req)
+        public async Task<bool> CreateCardCategory(CardCategory category)
         {
-            // Map from DTO to model 
-            var category = _mapper.Map<CardCategory>(req);
-
             // Model validation
-            var validationResult = _cardCategoryvalidator.Validate(category);
+            var validationResult = _validator.Validate(category);
             if (!validationResult.IsValid)
             {
                 var message = "Failed to create card category: model validation failed";
@@ -55,39 +45,25 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<ViewCardCategoryDto?> GetCardCategory(Guid id)
+        public async Task<CardCategory?> GetCardCategory(Guid id)
         {
             var category = await _uow.Repo<CardCategory>().GetByIdAsync(id);
-            if (category is null) return null;
-            return _mapper.Map<ViewCardCategoryDto>(category);
+            return category;
         }
 
-        public async Task<IPagedList<ViewCardCategoryDto>> GetAllCardCategories(QueryParamDto queryParam)
+        public async Task<IPagedList<CardCategory>> GetAllCardCategories(QueryParam<CardCategory> param)
         {
-            // Validation against query param 
-            var queryParamValidationResult = _queryParamValidator.Validate(queryParam);
-            if (!queryParamValidationResult.IsValid)
-            {
-                var message = "Failed to get all card categories: query param validation failed";
-                List<string> errors = [.. queryParamValidationResult.Errors.Select(e => e.ErrorMessage)];
-                throw Shared.Exceptions.ValidationException.Create(message, errors);
-            }
-
-            // Get the paged list from repo 
-            var categories = await _uow.Repo<CardCategory>().GetAllAsync(new(queryParam));
-            return _mapper.Map<IPagedList<ViewCardCategoryDto>>(categories);
+            // Get the paged list from repo
+            var categories = await _uow.Repo<CardCategory>().GetAllAsync(param);
+            return categories;
         }
 
-        public async Task<bool> UpdateCardCategory(Guid id, UpdateCardCategoryDto req)
+        // This method will just check if the new data is valid and then perform the update.
+        // The entity passed should be fetched from database.
+        public async Task<bool> UpdateCardCategory(CardCategory category)
         {
-            // Get entity from database by ID
-            var dbCardCategory = await _uow.Repo<CardCategory>().GetByIdAsync(id) ?? throw NotFoundException.Create(typeof(CardCategory).Name);
-
-            // Map from request DTO to database entity 
-            _mapper.Map(req, dbCardCategory);
-
-            // Validate new data 
-            var validationResult = _cardCategoryvalidator.Validate(dbCardCategory);
+            // Validation: check if new card category is valid
+            var validationResult = _validator.Validate(category);
             if (!validationResult.IsValid)
             {
                 var message = "Failed to update card category: model validation failed";
@@ -96,7 +72,7 @@ namespace KidFit.Services
             }
 
             // Update database entity
-            _uow.Repo<CardCategory>().Update(dbCardCategory);
+            _uow.Repo<CardCategory>().Update(category);
             return await _uow.SaveChangesAsync() > 0;
         }
     }

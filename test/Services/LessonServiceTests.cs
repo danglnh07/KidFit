@@ -1,0 +1,389 @@
+using KidFit.Data;
+using KidFit.Models;
+using KidFit.Repositories;
+using KidFit.Services;
+using KidFit.Shared.Constants;
+using KidFit.Shared.Exceptions;
+using KidFit.Shared.Queries;
+using KidFit.Validators;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+
+namespace KidFit.Tests.Services
+{
+    public class LessonServiceTests : IDisposable
+    {
+        private readonly LessonService _service;
+        private readonly SqliteConnection _conn;
+        private readonly AppDbContext _context;
+
+        public LessonServiceTests()
+        {
+            _conn = new SqliteConnection("DataSource=:memory:");
+            _conn.Open();
+
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlite(_conn)
+                .Options;
+            _context = new AppDbContext(options);
+            _context.Database.EnsureCreated();
+
+            var uow = new UnitOfWork(_context);
+            var lessonValidator = new LessonValidator();
+            _service = new LessonService(uow, lessonValidator);
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
+            _conn.Close();
+            _conn.Dispose();
+        }
+
+        private async Task<(Module module, Card card)> SeedTestDataAsync()
+        {
+            var module = new Module()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Module",
+                Description = "Test Description",
+                CoreSlot = 5,
+                TotalSlot = 10
+            };
+
+            var category = new CardCategory()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Category",
+                Description = "Test Description",
+                BorderColor = "#FF0000"
+            };
+            _context.CardCategories.Add(category);
+
+            var card = new Card()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Card",
+                Description = "Test Description",
+                Image = "test.jpg",
+                CategoryId = category.Id
+            };
+            await _context.Modules.AddAsync(module);
+            await _context.Cards.AddAsync(card);
+            await _context.SaveChangesAsync();
+
+            return (module, card);
+        }
+
+        [Fact]
+        public async Task CreateLesson_CreatesLesson()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Lesson",
+                Content = "Test Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            var result = await _service.CreateLesson(lesson);
+
+            Assert.True(result);
+
+            var dbEntity = _context.Lessons.FirstOrDefault(l => l.Id == lesson.Id);
+            Assert.NotNull(dbEntity);
+            Assert.Equal(lesson.Name, dbEntity.Name);
+            Assert.Equal(lesson.Content, dbEntity.Content);
+        }
+
+        [Fact]
+        public async Task CreateLesson_InvalidData_ThrowsValidationException()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "",
+                Content = "",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await Assert.ThrowsAsync<ValidationException>(() => _service.CreateLesson(lesson));
+        }
+
+        [Fact]
+        public async Task CreateLesson_ModuleNotFound_ThrowsDependentEntityNotFoundException()
+        {
+            var (_, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Lesson",
+                Content = "Test Content",
+                ModuleId = Guid.NewGuid(),
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.CreateLesson(lesson));
+        }
+
+        [Fact]
+        public async Task CreateLesson_CardNotFound_ThrowsDependentEntityNotFoundException()
+        {
+            var (module, _) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Lesson",
+                Content = "Test Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [Guid.NewGuid()]
+            };
+
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.CreateLesson(lesson));
+        }
+
+        [Fact]
+        public async Task GetLesson_ReturnsLesson()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Lesson",
+                Content = "Test Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            var result = await _service.GetLesson(lesson.Id);
+
+            Assert.NotNull(result);
+            Assert.Equal(lesson.Name, result.Name);
+            Assert.Equal(lesson.Content, result.Content);
+            Assert.Equal(lesson.ModuleId, result.ModuleId);
+            Assert.Equal(lesson.Year, result.Year);
+            Assert.Equal(lesson.CardIds, result.CardIds);
+        }
+
+        [Fact]
+        public async Task GetLesson_WithNestedData_ReturnsLessonWithModuleAndCards()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Lesson",
+                Content = "Test Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            var result = await _service.GetLesson(lesson.Id, true);
+
+            Assert.NotNull(result);
+            Assert.Equal(lesson.Name, result.Name);
+            Assert.Equal(lesson.Content, result.Content);
+            Assert.Equal(lesson.Year, result.Year);
+            Assert.NotNull(result.Module);
+            Assert.Equal(module.Name, result.Module.Name);
+        }
+
+        [Fact]
+        public async Task GetLesson_NotFound_ReturnsNull()
+        {
+            var result = await _service.GetLesson(Guid.NewGuid());
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetAllLessons_ReturnsPagedList()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson1 = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Lesson 1",
+                Content = "Content 1",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+            var lesson2 = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Lesson 2",
+                Content = "Content 2",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddRangeAsync(lesson1, lesson2);
+            await _context.SaveChangesAsync();
+
+            var result = await _service.GetAllLessons(new QueryParam<Lesson>(page: 1, size: 10));
+
+            Assert.Equal(2, result.Count);
+        }
+
+        [Fact]
+        public async Task UpdateLesson_UpdatesLesson()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Original Name",
+                Content = "Original Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            lesson.Name = "Updated Name";
+            lesson.Content = "Updated Content";
+
+            var result = await _service.UpdateLesson(lesson);
+
+            Assert.True(result);
+
+            var dbEntity = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == lesson.Id);
+            Assert.NotNull(dbEntity);
+            Assert.Equal(lesson.Name, dbEntity.Name);
+            Assert.Equal(lesson.Content, dbEntity.Content);
+            Assert.Equal(lesson.ModuleId, dbEntity.ModuleId);
+            Assert.Equal(lesson.Year, dbEntity.Year);
+            Assert.Equal(lesson.CardIds, dbEntity.CardIds);
+        }
+
+        [Fact]
+        public async Task UpdateLesson_InvalidData_ThrowsValidationException()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Valid Name",
+                Content = "Valid Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            lesson.Name = "";
+            lesson.Content = "";
+
+            await Assert.ThrowsAsync<ValidationException>(() => _service.UpdateLesson(lesson));
+        }
+
+        [Fact]
+        public async Task UpdateLesson_ModuleNotFound_ThrowsDependentEntityNotFoundException()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Valid Name",
+                Content = "Valid Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            lesson.ModuleId = Guid.NewGuid();
+
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.UpdateLesson(lesson));
+        }
+
+        [Fact]
+        public async Task UpdateLesson_CardNotFound_ThrowsDependentEntityNotFoundException()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Valid Name",
+                Content = "Valid Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            lesson.CardIds = [Guid.NewGuid()];
+
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.UpdateLesson(lesson));
+        }
+
+        [Fact]
+        public async Task DeleteLesson_DeletesLesson()
+        {
+            var (module, card) = await SeedTestDataAsync();
+
+            var lesson = new Lesson()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Lesson",
+                Content = "Test Content",
+                ModuleId = module.Id,
+                Year = Year.SEED,
+                CardIds = [card.Id]
+            };
+
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
+
+            var result = await _service.DeleteLesson(lesson.Id);
+
+            Assert.True(result);
+
+            var deletedLesson = _context.Lessons.FirstOrDefault(l => l.Id == lesson.Id);
+            Assert.Null(deletedLesson);
+        }
+
+        [Fact]
+        public async Task DeleteLesson_NotFound_ThrowsNotFoundException()
+        {
+            await Assert.ThrowsAsync<NotFoundException>(() => _service.DeleteLesson(Guid.NewGuid()));
+        }
+    }
+}

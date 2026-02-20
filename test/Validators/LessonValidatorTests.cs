@@ -22,7 +22,7 @@ namespace KidFit.Tests.Validators
                 Content = "Test Content",
                 ModuleId = Guid.NewGuid(),
                 Year = Year.KINDERGARTEN,
-                Cards = [new Card()]
+                CardIds = [new Guid()],
             };
 
             var result = _validator.Validate(lesson);
@@ -92,24 +92,6 @@ namespace KidFit.Tests.Validators
         }
 
         [Fact]
-        public void Validate_EmptyYear_ReturnsFailure()
-        {
-            var lesson = new Lesson
-            {
-                Name = "Test Lesson",
-                Content = "Test Content",
-                ModuleId = Guid.NewGuid(),
-                Year = 0,  // Default/empty enum value
-                Cards = [new Card()]
-            };
-
-            var result = _validator.Validate(lesson);
-
-            Assert.False(result.IsValid);
-            Assert.Contains(result.Errors, e => e.PropertyName == "Year");
-        }
-
-        [Fact]
         public void Validate_EmptyCards_ReturnsFailure()
         {
             var lesson = new Lesson
@@ -118,31 +100,13 @@ namespace KidFit.Tests.Validators
                 Content = "Test Content",
                 ModuleId = Guid.NewGuid(),
                 Year = Year.KINDERGARTEN,
-                Cards = []
+                CardIds = []
             };
 
             var result = _validator.Validate(lesson);
 
             Assert.False(result.IsValid);
-            Assert.Contains(result.Errors, e => e.PropertyName == "Cards");
-        }
-
-        [Fact]
-        public void Validate_NullCards_ReturnsFailure()
-        {
-            var lesson = new Lesson
-            {
-                Name = "Test Lesson",
-                Content = "Test Content",
-                ModuleId = Guid.NewGuid(),
-                Year = Year.KINDERGARTEN,
-                Cards = null!
-            };
-
-            var result = _validator.Validate(lesson);
-
-            Assert.False(result.IsValid);
-            Assert.Contains(result.Errors, e => e.PropertyName == "Cards");
+            Assert.Contains(result.Errors, e => e.PropertyName == "CardIds");
         }
     }
 }

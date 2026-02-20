@@ -1,4 +1,3 @@
-using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Services;
@@ -11,36 +10,39 @@ namespace KidFit.Data
     {
         public static async Task InitializeAsync(AppDbContext context,
                                                  AccountService accountService,
+                                                 RoleService roleService,
                                                  IUnitOfWork uow,
                                                  IConfiguration config,
                                                  ILogger<DbInitilizer> logger)
         {
+            // Wait for database migration to run
             await context.Database.MigrateAsync();
 
-            // We'll use this method to seed admin default account and some data, 
-            // so to check if this is truly first time running or not, we just need to check 
-            // if there is even any data yet, specifically the ApplicationUser set.
-            if (await accountService.AnyAccountExist())
+            // Check if any account has been created or not for data seeding
+            if (await accountService.CountAccountsAsync(allowInactive: true) == 0)
             {
-                logger.LogInformation("Skip database seeding");
+                logger.LogInformation("Database already have data, skip database seeding");
                 return;
             }
 
-            // Create roles
+            // Create roles. Since this run only one for the entire time, no need to 
+            // optimize this process
             List<Role> roles = [Role.ADMIN, Role.STAFF, Role.TEACHER, Role.SCHOOL, Role.PARENT];
             foreach (var role in roles)
             {
-                await accountService.CreateApplicationRole(role);
+                await roleService.CreateApplicationRole(role);
             }
 
             // Create default admin account
-            await accountService.CreateAccountAsync(new CreateAccountDto()
+            ApplicationUser account = new()
             {
                 Email = config.GetValue<string>("AppSettings:DefaultAdminEmail") ?? "admin@kidfit.com",
-                Username = "admin",
+                UserName = "admin",
                 FullName = "Admin",
-                Role = Role.ADMIN,
-            });
+                IsActive = true,
+                AvatarUrl = config.GetValue<string>("AppSettings:DefaultAdminAvatarUrl") ?? "",
+            };
+            await accountService.CreateAccountAsync(account, Role.ADMIN);
 
             // Create default card category
             var categories = new List<CardCategory>
@@ -49,9 +51,9 @@ namespace KidFit.Data
                 new() {Name = "Group B - ???", Description = "???", BorderColor = "Orange"},
                 new() {Name = "Group C - ???", Description = "???", BorderColor = "Blue"},
             };
-            await uow.Repo<CardCategory>().CreateBatch(categories);
+            await uow.Repo<CardCategory>().CreateBatchAsync(categories);
 
-            // Create default modules 
+            // Create default modules
             var modules = new List<Module>
             {
                 new () {Name = "Module 1", Description = "???", CoreSlot = 35, TotalSlot = 70},
@@ -61,10 +63,13 @@ namespace KidFit.Data
                 new () {Name = "Module 5", Description = "???", CoreSlot = 35, TotalSlot = 70},
                 new () {Name = "Module 6", Description = "???", CoreSlot = 35, TotalSlot = 70},
             };
-            await uow.Repo<Module>().CreateBatch(modules);
-            if (await uow.SaveChangesAsync() == 0)
+            await uow.Repo<Module>().CreateBatchAsync(modules);
+
+            // Save changes to database
+            var success = await uow.SaveChangesAsync();
+            if (success != categories.Count + modules.Count)
             {
-                logger.LogWarning("Failed to seed data");
+                logger.LogWarning($"Some initial data is not seeded properly (expected: {categories.Count + modules.Count}, actual: {success})");
                 throw new Exception("Failed to seed data");
             }
 
