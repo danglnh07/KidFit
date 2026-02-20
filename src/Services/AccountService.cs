@@ -76,6 +76,13 @@ namespace KidFit.Services
             return account is null || !account.IsActive ? null : account;
         }
 
+        public async Task<Role> GetRoleByAccount(ApplicationUser account)
+        {
+            var roles = await _userManager.GetRolesAsync(account);
+            Enum.TryParse(roles.FirstOrDefault(), out Role role);
+            return role;
+        }
+
         public async Task<IPagedList<ApplicationUser>> GetAllAccounts(QueryParam<ApplicationUser> param, bool allowInactive = false)
         {
             // Validation against query param
