@@ -15,48 +15,16 @@ namespace KidFit.Controllers.Apis
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        public async Task<IActionResult> Login()
         {
-            try
-            {
-                var result = await _authService.LoginAsync(request, true);
-                return Ok(result);
-            }
-            catch (ValidationException ex)
-            {
-                _logger.LogWarning($"Login failed at validation: {ex.Message}");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (IdentityException ex)
-            {
-                _logger.LogWarning($"Login failed: {ex.Message}");
-                return Unauthorized(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Login error: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred during login" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPost("reset-password")]
         [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
+        public async Task<IActionResult> ResetPassword()
         {
-            try
-            {
-                await _authService.ResetPasswordAsync(request.Id, request.Token, request.NewPassword);
-                return Ok(new { success = true, message = "Password reset successfully" });
-            }
-            catch (IdentityException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Reset password error: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred while resetting password" });
-            }
+            throw new NotImplementedException();
         }
     }
 }

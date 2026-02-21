@@ -15,14 +15,14 @@ namespace KidFit.Services
 {
     public class AccountService(UserManager<ApplicationUser> userManager,
                                 IValidator<ApplicationUser> accountValidator,
-                                IValidator<QueryParam<ApplicationUser>> queryParamValidator,
-                                ITimeTickerManager<TimeTickerEntity> scheduler)
+                                ITimeTickerManager<TimeTickerEntity> scheduler,
+                                ILogger<AccountService> logger)
     {
         // Dependencies
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IValidator<ApplicationUser> _accountValidator = accountValidator;
-        private readonly IValidator<QueryParam<ApplicationUser>> _queryParamValidator = queryParamValidator;
         private readonly ITimeTickerManager<TimeTickerEntity> _scheduler = scheduler;
+        private readonly ILogger<AccountService> _logger = logger;
 
         // Task configs
         private readonly int taskExecTimeInSecs = 10;
@@ -62,7 +62,14 @@ namespace KidFit.Services
             {
                 Function = "SendWelcomeEmail",
                 ExecutionTime = DateTime.UtcNow.AddSeconds(taskExecTimeInSecs),
-                Request = TickerHelper.CreateTickerRequest(new SendWelcomeEmailRequest(account, resetToken)),
+                Request = TickerHelper.CreateTickerRequest(new SendWelcomeEmailRequest()
+                {
+                    Fullname = account.FullName,
+                    Email = account.Email!,
+                    Username = account.UserName!,
+                    Token = resetToken,
+                    Id = account.Id,
+                }),
                 Description = $"Send welcome email to {account.Email}",
                 Retries = taskRetries,
                 RetryIntervals = taskRetryIntervals,
@@ -85,15 +92,6 @@ namespace KidFit.Services
 
         public async Task<IPagedList<ApplicationUser>> GetAllAccounts(QueryParam<ApplicationUser> param, bool allowInactive = false)
         {
-            // Validation against query param
-            var queryParamValidationResult = _queryParamValidator.Validate(param);
-            if (!queryParamValidationResult.IsValid)
-            {
-                var message = "Failed to get all accounts: query param validation failed";
-                List<string> errors = [.. queryParamValidationResult.Errors.Select(e => e.ErrorMessage)];
-                throw Shared.Exceptions.ValidationException.Create(message, errors);
-            }
-
             // Build the query
             var query = _userManager.Users.AsQueryable();
 

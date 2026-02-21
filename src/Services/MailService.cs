@@ -2,8 +2,10 @@ using System.Text;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using MimeKit;
 using MimeKit.Text;
+using Scriban;
 
 namespace KidFit.Services
 {
@@ -11,26 +13,38 @@ namespace KidFit.Services
     {
         public string HostEmail { get; set; } = "";
         public string HostAppPassword { get; set; } = "";
+        public string SmtpHost { get; set; } = "smtp.gmail.com";
+        public int SmtpPort { get; set; } = 587;
+        public string BaseURL { get; set; } = "";
+    }
+
+    public class WelcomeEmailParam
+    {
+        public string Name { get; set; } = "";
+        public string Username { get; set; } = "";
+        public string ResetPasswordUrl { get; set; } = "";
     }
 
     public class MailService(IOptions<MailServiceOptions> options)
     {
         private readonly string _hostEmail = options.Value.HostEmail;
         private readonly string _hostAppPassword = options.Value.HostAppPassword;
+        private readonly string _smtpHost = options.Value.SmtpHost;
+        private readonly int _smtpPort = options.Value.SmtpPort;
+        private readonly string _baseURL = options.Value.BaseURL;
 
-        private readonly string SMTP_HOST = "smtp.gmail.com";
-        private readonly int SMTP_PORT = 587;
-
-        public static string PrepareWelcomeEmailTemplate(string name, string username, string id, string token)
+        public string GenerateResetPasswordUrl(string id, string token)
         {
-            var template = new StringBuilder();
+            token = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(token));
+            return $"{_baseURL}/auth/resetPassword?id={id}&token={token}";
+        }
 
-            template.AppendLine($"<p>Welcome to KidFit, {name}</p>");
-            template.AppendLine($"<p>Your username is {username}</p>");
-            template.AppendLine($"<p>Please use the <b>link</b> below to login and change your password</p>");
-            template.AppendLine($"<p><a href=\"http://localhost:5046/api/change-password?id={id}&token={token}\">Change Password</a></p>");
-
-            return template.ToString();
+        public string PrepareWelcomeEmailTemplate(WelcomeEmailParam param)
+        {
+            // Read template from file
+            var source = File.ReadAllText(Directory.GetCurrentDirectory() + "/wwwroot/templates/welcome_email.html");
+            var template = Template.ParseLiquid(source);
+            return template.Render(param);
         }
 
         public void SendEmail(IEnumerable<(string Name, string Email)> recipients, string subject, string body)
@@ -47,7 +61,7 @@ namespace KidFit.Services
 
             // Send message
             using var client = new SmtpClient();
-            client.Connect(SMTP_HOST, SMTP_PORT, SecureSocketOptions.StartTls);
+            client.Connect(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
             client.Authenticate(_hostEmail, _hostAppPassword);
             client.Send(message);
             client.Disconnect(true);

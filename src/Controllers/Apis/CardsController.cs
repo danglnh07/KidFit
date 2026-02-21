@@ -16,109 +16,36 @@ namespace KidFit.Controllers.Apis
         private readonly ILogger<CardController> _logger = logger;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QueryParamDto queryParam)
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var result = await _cardService.GetAllCards(queryParam);
-                return Ok(result);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting cards: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
-            {
-                var result = await _cardService.GetCard(id);
-                if (result == null)
-                {
-                    return NotFound(new { message = $"Card {id} not found" });
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting card {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Create([FromBody] CreateCardDto request)
+        public async Task<IActionResult> Create()
         {
-            try
-            {
-                var result = await _cardService.CreateCard(request);
-                return Ok(new { success = result, message = "Card created successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating card: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCardDto request)
+        public async Task<IActionResult> Update(Guid id)
         {
-            try
-            {
-                var result = await _cardService.UpdateCard(id, request);
-                return Ok(new { success = result, message = "Card updated successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating card {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                var result = await _cardService.DeleteCard(id);
-                return Ok(new { success = result, message = "Card deleted successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error deleting card {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
     }
 }

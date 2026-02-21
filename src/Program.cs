@@ -1,14 +1,11 @@
-using System.Security.Claims;
 using System.Text;
 using DotNetEnv;
 using FluentValidation;
 using KidFit.Data;
-using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Services;
 using KidFit.Shared.Constants;
-using KidFit.Shared.Queries;
 using KidFit.Validators;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
@@ -98,6 +95,7 @@ builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<LessonService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<MailService>();
 
 // Register validators
@@ -105,6 +103,7 @@ builder.Services.AddScoped<IValidator<CardCategory>, CardCategoryValidator>();
 builder.Services.AddScoped<IValidator<Card>, CardValidator>();
 builder.Services.AddScoped<IValidator<Module>, ModuleValidator>();
 builder.Services.AddScoped<IValidator<Lesson>, LessonValidator>();
+builder.Services.AddScoped<IValidator<ApplicationUser>, ApplicationUserValidator>();
 
 // Add TickerQ
 builder.Services.AddTickerQ(options =>
@@ -210,6 +209,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         Console.WriteLine($"Failed to initialize database: {ex.Message}");
+        return;
     }
 }
 

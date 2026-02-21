@@ -16,117 +16,36 @@ namespace KidFit.Controllers.Apis
         private readonly ILogger<LessonController> _logger = logger;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QueryParamDto queryParam)
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var result = await _lessonService.GetAllLessons(queryParam);
-                return Ok(result);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting lessons: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
-            {
-                var result = await _lessonService.GetLesson(id);
-                if (result == null)
-                {
-                    return NotFound(new { message = $"Lesson {id} not found" });
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting lesson {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Create([FromBody] CreateLessonDto request)
+        public async Task<IActionResult> Create()
         {
-            try
-            {
-                var result = await _lessonService.CreateLesson(request);
-                return Ok(new { success = result, message = "Lesson created successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (DependentEntityNotFoundException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating lesson: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLessonDto request)
+        public async Task<IActionResult> Update(Guid id)
         {
-            try
-            {
-                var result = await _lessonService.UpdateLesson(id, request);
-                return Ok(new { success = result, message = "Lesson updated successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (DependentEntityNotFoundException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating lesson {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                var result = await _lessonService.DeleteLesson(id);
-                return Ok(new { success = result, message = "Lesson deleted successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error deleting lesson {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
     }
 }

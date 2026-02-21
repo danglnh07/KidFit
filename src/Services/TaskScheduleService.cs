@@ -19,7 +19,12 @@ namespace KidFit.Services
             var request = await TickerRequestProvider.GetRequestAsync<SendWelcomeEmailRequest>(ctx, canceled);
 
             // Prepare email template
-            var tmpl = MailService.PrepareWelcomeEmailTemplate(request.Fullname, request.Username, request.Id, request.Token);
+            var tmpl = _mailService.PrepareWelcomeEmailTemplate(new WelcomeEmailParam()
+            {
+                Name = request.Fullname,
+                Username = request.Username,
+                ResetPasswordUrl = _mailService.GenerateResetPasswordUrl(request.Id, request.Token),
+            });
 
             // Send email
             var recipents = new List<(string, string)> { (request.Fullname, request.Email) };

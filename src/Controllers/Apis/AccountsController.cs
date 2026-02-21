@@ -1,141 +1,92 @@
 using System.Security.Claims;
+using AutoMapper;
 using KidFit.Dtos;
+using KidFit.Dtos.Requests;
+using KidFit.Dtos.Responses;
+using KidFit.Models;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
+using KidFit.Shared.Queries;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList;
 
 namespace KidFit.Controllers.Apis
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AccountsController(AccountService accountService,
+                                    IMapper mapper,
                                     ILogger<AccountsController> logger) : ControllerBase
     {
         private readonly AccountService _accountService = accountService;
+        private readonly IMapper _mapper = mapper;
         private readonly ILogger<AccountsController> _logger = logger;
 
-        [HttpPost("create")]
+        [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Create([FromBody] CreateAccountDto request)
+        public async Task<IActionResult> Create([FromBody] CreateAccountDto req)
         {
-            try
-            {
-                await _accountService.CreateAccountAsync(request);
-                return Ok(new { success = true, message = "Account created successfully" });
-            }
-            catch (IdentityException ex)
-            {
-                _logger.LogWarning($"Create account failed: {ex.Message}");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Create account error: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred during account creation" });
-            }
+            throw new NotImplementedException();
         }
 
-        [HttpGet("me")]
+        [HttpGet("profile")]
         [Authorize]
-        public async Task<IActionResult> GetMe()
+        public async Task<IActionResult> GetProfile()
         {
-            try
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (userId == null) return NotFound(new { message = "Account not found" });
-                var account = await _accountService.GetAccountById(userId);
-                if (account == null) return NotFound(new { message = "Account not found" });
-                return Ok(account);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting account: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminOrSelf")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetById(string id)
         {
-            try
-            {
-                var account = await _accountService.GetAccountById(id);
-                if (account == null)
-                {
-                    return NotFound(new { message = $"Account {id} not found" });
-                }
-                return Ok(account);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting account {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
-        [HttpPut("me")]
-        [Authorize]
-        public async Task<IActionResult> UpdateMe([FromBody] UpdateAccountDto request)
+        [HttpGet]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (userId == null) return NotFound(new { message = "Account not found" });
-                var account = await _accountService.UpdateAccount(userId, request);
-                return Ok(new { success = true, message = "Account updated successfully", account });
-            }
-            catch (IdentityException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating account: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
-        [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOrSelf")]
+        [HttpPatch("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateAccountDto request)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPut("password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPatch("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateAccountDto request)
         {
-            try
-            {
-                var account = await _accountService.UpdateAccount(id, request);
-                return Ok(new { success = true, message = "Account updated successfully", account });
-            }
-            catch (IdentityException ex)
-            {
-                _logger.LogWarning($"Update account failed: {ex.Message}");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Update account error: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred during account update" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOrSelf")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Deactivate(string id)
         {
-            try
-            {
-                await _accountService.DeactivateAccount(id);
-                return Ok(new { success = true, message = "Account deactivated successfully" });
-            }
-            catch (IdentityException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Deactivate account error: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred during account deactivation" });
-            }
+            throw new NotImplementedException();
+        }
+
+        // Should be POST or PUT or PATCH ???
+        [HttpPost("id")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Activate(string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

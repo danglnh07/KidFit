@@ -16,105 +16,36 @@ namespace KidFit.Controllers.Apis
         private readonly ILogger<ModuleController> _logger = logger;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QueryParamDto queryParam)
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var result = await _moduleService.GetModules(queryParam);
-                return Ok(result);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting modules: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
-            {
-                var result = await _moduleService.GetModule(id);
-                if (result == null)
-                {
-                    return NotFound(new { message = $"Module {id} not found" });
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting module {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Create([FromBody] CreateModuleDto request)
+        public async Task<IActionResult> Create()
         {
-            try
-            {
-                var result = await _moduleService.CreateModule(request);
-                return Ok(new { success = result, message = "Module created successfully" });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating module: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN,STAFF")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateModuleDto request)
+        public async Task<IActionResult> Update(Guid id)
         {
-            try
-            {
-                var result = await _moduleService.UpdateModule(id, request);
-                return Ok(new { success = result, message = "Module updated successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating module {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN,STAFF")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                var result = await _moduleService.DeleteModule(id);
-                return Ok(new { success = result, message = "Module deleted successfully" });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error deleting module {id}: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
+            throw new NotImplementedException();
         }
     }
 }
