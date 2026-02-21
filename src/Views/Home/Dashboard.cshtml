@@ -92,9 +92,11 @@
                         <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">@Model.Username</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400 truncate">@Model.Role</p>
                     </div>
-                    <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                        <span class="material-symbols-outlined text-[20px]">settings</span>
-                    </button>
+                    <form asp-action="Logout" asp-controller="Auth" method="post" >
+                        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" type="submit">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>

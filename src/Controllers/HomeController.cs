@@ -6,7 +6,7 @@ using KidFit.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KidFit.Controllers.Views
+namespace KidFit.Controllers
 {
     public class HomeController(AccountService accountService,
                                 IUnitOfWork uow,

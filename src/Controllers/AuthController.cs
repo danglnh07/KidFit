@@ -4,7 +4,7 @@ using KidFit.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-namespace KidFit.Controllers.Views
+namespace KidFit.Controllers
 {
     public class AuthController(AuthService authService, ILogger<AuthController> logger) : Controller
     {
@@ -36,13 +36,13 @@ namespace KidFit.Controllers.Views
             {
                 _logger.LogWarning($"Login failed: {ex.Message}");
                 TempData["Message"] = ex.Message;
-                return View(req);
+                return View();
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Login error: {ex.Message}");
                 TempData["Message"] = "An error occurred";
-                return View(req);
+                return View();
             }
         }
 
@@ -90,7 +90,7 @@ namespace KidFit.Controllers.Views
         {
             await _authService.Logout();
             _logger.LogInformation("User logged out");
-            return RedirectToAction("Login", "Auth");
+            return Redirect("/auth/login");
         }
     }
 }

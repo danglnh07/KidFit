@@ -2,7 +2,7 @@ using KidFit.Services;
 using KidFit.Shared.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KidFit.Controllers.Views
+namespace KidFit.Controllers
 {
     public class AccountController(AccountService accountService, ILogger<AccountController> logger) : Controller
     {

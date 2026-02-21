@@ -78,13 +78,13 @@
             </div>
 
             <!-- Error Message -->
-            @if (ViewData["Message"] != null)
+            @if (TempData["Message"] != null)
             {
                 <div class="p-8 pb-0">
                     <div
                         class="bg-[#fee2e2] border border-[#fecaca] text-[#dc2626] p-3 rounded-lg text-sm flex items-center gap-2">
                         <span uk-icon="icon: warning"></span>
-                        @ViewData["Message"]
+                        @TempData["Message"]!.ToString()
                     </div>
                 </div>
             }
