@@ -1,8 +1,5 @@
 using System.Security.Claims;
 using AutoMapper;
-using KidFit.Dtos;
-using KidFit.Dtos.Requests;
-using KidFit.Dtos.Responses;
 using KidFit.Models;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
@@ -27,7 +24,7 @@ namespace KidFit.Controllers.Apis
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Create([FromBody] CreateAccountDto req)
+        public async Task<IActionResult> Create()
         {
             throw new NotImplementedException();
         }
@@ -55,21 +52,21 @@ namespace KidFit.Controllers.Apis
 
         [HttpPatch("profile")]
         [Authorize]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateAccountDto request)
+        public async Task<IActionResult> UpdateProfile()
         {
             throw new NotImplementedException();
         }
 
         [HttpPut("password")]
         [Authorize]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+        public async Task<IActionResult> ChangePassword()
         {
             throw new NotImplementedException();
         }
 
         [HttpPatch("{id}")]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateAccountDto request)
+        public async Task<IActionResult> Update(string id)
         {
             throw new NotImplementedException();
         }

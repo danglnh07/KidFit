@@ -1,4 +1,3 @@
-using KidFit.Dtos;
 using KidFit.Services;
 using KidFit.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
