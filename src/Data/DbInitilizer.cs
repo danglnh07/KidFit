@@ -19,7 +19,7 @@ namespace KidFit.Data
             await context.Database.MigrateAsync();
 
             // Check if any account has been created or not for data seeding
-            if (await accountService.CountAccountsAsync(allowInactive: true) == 0)
+            if (await accountService.CountAccountsAsync(allowInactive: true) != 0)
             {
                 logger.LogInformation("Database already have data, skip database seeding");
                 return;
