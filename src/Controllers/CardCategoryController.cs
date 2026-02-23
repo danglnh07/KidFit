@@ -68,6 +68,7 @@ namespace KidFit.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Update(Guid id)
         {
             try
