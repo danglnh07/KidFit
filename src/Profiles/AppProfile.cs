@@ -1,4 +1,6 @@
 using AutoMapper;
+using KidFit.Models;
+using KidFit.ViewModels;
 using X.PagedList;
 
 namespace KidFit.Profiles
@@ -19,6 +21,16 @@ namespace KidFit.Profiles
         public AppProfile()
         {
             CreateMap(typeof(IPagedList<>), typeof(IPagedList<>)).ConvertUsing(typeof(PagedListConverter<,>));
+
+            CreateMap<CreateAccountViewModel, ApplicationUser>();
+            CreateMap<ApplicationUser, AccountViewModel>();
+            CreateMap<ApplicationUser, AccountViewModelWithRole>();
+            CreateMap<UpdateAccountViewModel, ApplicationUser>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
+                {
+                    if (srcMember is null) return false;
+                    return true;
+                }));
         }
     }
 

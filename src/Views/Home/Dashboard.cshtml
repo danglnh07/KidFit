@@ -1,200 +1,77 @@
 @using KidFit.ViewModels
 @model DashboardViewModel
 @{
-
+    ViewData["Title"] = "Dashboard Overview";
 }
 
-<!DOCTYPE html>
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h2>
+</header>
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Admin Dashboard Overview - Learning Hub</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "primary": "#135bec",
-                    "background-light": "#f6f6f8",
-                    "background-dark": "#101622",
-                },
-                fontFamily: {
-                    "display": ["Lexend", "sans-serif"]
-                },
-                borderRadius: {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-                },
-            },
-        },
-    }
-</script>
-<style>
-    body {
-        font-family: 'Lexend', sans-serif;
-    }
-    .sparkline-container {
-        height: 40px;
-        width: 100px;
-    }
-</style>
-</head>
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
-    <div class="flex min-h-screen">
-        <!-- Sidebar Navigation -->
-        <aside class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed h-full">
-            <!-- Sidebar logo section -->
-            <div class="p-6 flex items-center gap-3">
-                <div class="size-10 rounded-lg bg-primary flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined">school</span>
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+    <section>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total accounts</p>
+                        <h3 class="text-3xl font-bold mt-1">@Model.TotalUsers</h3>
+                    </div>
+                    <div class="bg-primary/10 p-2 rounded-lg text-primary">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total cards</p>
+                        <h3 class="text-3xl font-bold mt-1">@Model.TotalCards</h3>
+                    </div>
+                    <div class="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400">
+                        <span class="material-symbols-outlined">cards</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total lessons</p>
+                        <h3 class="text-3xl font-bold mt-1">@Model.TotalLessons</h3>
+                    </div>
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">
+                        <span class="material-symbols-outlined">cast_for_education</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h4 class="text-lg font-bold mb-4 text-slate-800 dark:text-slate-200">Quick Actions</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <a asp-action="Create" asp-controller="Account" class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
+                <div class="bg-primary group-hover:scale-110 transition-transform size-16 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-3xl">person_add</span>
                 </div>
                 <div>
-                    <h1 class="text-slate-900 dark:text-white font-bold text-lg leading-tight">KidFit</h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">Admin Portal</p>
+                    <h5 class="text-xl font-bold text-slate-900 dark:text-white">Create New User</h5>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">Register a new student, instructor, or admin account.</p>
                 </div>
-            </div>
-
-            <!-- Sidebar links -->
-            <nav class="flex-1 px-4 py-4 space-y-1">
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold transition-colors" href="#">
-                    <span class="material-symbols-outlined fill-1">dashboard</span>
-                    <span class="text-sm">Dashboard Overview</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
-                    <span class="material-symbols-outlined">group</span>
-                    <span class="text-sm font-medium">Account Management</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
-                    <span class="material-symbols-outlined">auto_stories</span>
-                    <span class="text-sm font-medium">Module Management</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
-                    <span class="material-symbols-outlined">category</span>
-                    <span class="text-sm font-medium">Card Category Management</span>
-                </a>
-            </nav>
-
-            <!-- Sidebar's user information section -->
-            <div class="p-4 mt-auto border-t border-slate-200 dark:border-slate-800">
-                <div class="flex items-center gap-3 px-2 py-3">
-                    <div class="size-9 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                        <img class="w-full h-full object-cover" data-alt="Admin user profile avatar" src="@Model.AvatarUrl"/>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">@Model.Username</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">@Model.Role</p>
-                    </div>
-                    <form asp-action="Logout" asp-controller="Auth" method="post" >
-                        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" type="submit">
-                            <span class="material-symbols-outlined text-[20px]">logout</span>
-                        </button>
-                    </form>
+                <span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors text-3xl">chevron_right</span>
+            </a>
+            <button class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
+                <div class="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all size-16 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/5">
+                    <span class="material-symbols-outlined text-3xl">add_box</span>
                 </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 ml-72">
-            <!-- Header Bar -->
-            <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
-                <!-- Header title -->
-                <div class="flex items-center gap-4">
-                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h2>
+                <div>
+                    <h5 class="text-xl font-bold text-slate-900 dark:text-white">Add New Module</h5>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">Upload learning materials, quizzes, and resources.</p>
                 </div>
-
-                <!-- Header: notification button and download export button -->
-                @* <div class="flex items-center gap-4">
-                    <div class="relative">
-                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer">notifications</span>
-                        <span class="absolute top-2 right-2 size-2 bg-red-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                    </div>
-                    <button class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-primary/90 transition-all shadow-sm shadow-primary/20">
-                        <span class="material-symbols-outlined text-sm">download</span>
-                        Export Report
-                    </button>
-                </div> *@
-            </header>
-
-            <!-- Main section -->
-            <div class="p-8 max-w-7xl mx-auto space-y-8">
-                <!-- Summary Statistics Grid -->
-                <section>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Stat Card 1 -->
-                        <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total accounts</p>
-                                    <h3 class="text-3xl font-bold mt-1">@Model.TotalUsers</h3>
-                                </div>
-                                <div class="bg-primary/10 p-2 rounded-lg text-primary">
-                                    <span class="material-symbols-outlined">person</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Stat Card 2 -->
-                        <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total cards</p>
-                                    <h3 class="text-3xl font-bold mt-1">@Model.TotalCards</h3>
-                                </div>
-                                <div class="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400">
-                                    <span class="material-symbols-outlined">cards</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Stat Card 3 -->
-                        <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total lessons</p>
-                                    <h3 class="text-3xl font-bold mt-1">@Model.TotalLessons</h3>
-                                </div>
-                                <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">
-                                    <span class="material-symbols-outlined">cast_for_education</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <!-- Quick Actions -->
-                <section>
-                    <h4 class="text-lg font-bold mb-4 text-slate-800 dark:text-slate-200">Quick Actions</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <button class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
-                            <div class="bg-primary group-hover:scale-110 transition-transform size-16 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                <span class="material-symbols-outlined text-3xl">person_add</span>
-                            </div>
-                            <div>
-                                <h5 class="text-xl font-bold text-slate-900 dark:text-white">Create New User</h5>
-                                <p class="text-slate-500 dark:text-slate-400 mt-1">Register a new student, instructor, or admin account.</p>
-                            </div>
-                            <span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors text-3xl">chevron_right</span>
-                        </button>
-                        <button class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
-                            <div class="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all size-16 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/5">
-                                <span class="material-symbols-outlined text-3xl">add_box</span>
-                            </div>
-                            <div>
-                                <h5 class="text-xl font-bold text-slate-900 dark:text-white">Add New Module</h5>
-                                <p class="text-slate-500 dark:text-slate-400 mt-1">Upload learning materials, quizzes, and resources.</p>
-                            </div>
-                            <span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors text-3xl">chevron_right</span>
-                        </button>
-                    </div>
-                </section>
-
-            </div>
-        </main>
-    </div>
-</body></html>
+                <span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors text-3xl">chevron_right</span>
+            </button>
+        </div>
+    </section>
+</div>

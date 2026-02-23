@@ -1,0 +1,177 @@
+@using KidFit.ViewModels
+@model AccountsViewModel
+@{
+    ViewData["Title"] = "Account Management";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalAccount / Model.PageSize);
+}
+
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Account Management</h2>
+    <a asp-action="Create" asp-controller="Account" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold shadow-sm transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+        <span class="material-symbols-outlined text-xl">person_add</span>
+        <span>Create New Account</span>
+    </a>
+</header>
+
+<div class="p-8">
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium">
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 font-medium">
+            @TempData["Error"]
+        </div>
+    }
+    @if (TempData["Message"] != null)
+    {
+        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 font-medium">
+            @TempData["Message"]
+        </div>
+    }
+
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            Username
+                        </th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            Email
+                        </th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hidden lg:table-cell">
+                            Status
+                        </th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                    @foreach (var account in Model.Accounts)
+                    {
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700">
+                                        @if (!string.IsNullOrEmpty(account.AvatarUrl))
+                                        {
+                                            <img alt="Avatar" class="h-full w-full object-cover" src="@account.AvatarUrl" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-slate-500 dark:text-slate-400 text-sm font-bold">@account.Username.Substring(0, 1).ToUpper()</span>
+                                        }
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-900 dark:text-white">@account.Username</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                                @account.Email
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-2 w-2 rounded-full @(account.IsActive ? "bg-emerald-500" : "bg-rose-500")"></div>
+                                    <span class="text-sm font-medium @(account.IsActive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")">@(account.IsActive ? "Active" : "Inactive")</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a asp-action="Detail" asp-controller="Account" asp-route-id="@account.Id" class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="View Details">
+                                        <span class="material-symbols-outlined text-xl">visibility</span>
+                                    </a>
+                                    <a asp-action="Update" asp-controller="Account" asp-route-id="@account.Id" class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="Edit Account">
+                                        <span class="material-symbols-outlined text-xl">edit</span>
+                                    </a>
+                                    @if (account.IsActive)
+                                    {
+                                        <form asp-action="Deactivate" asp-controller="Account" asp-route-id="@account.Id" method="post" class="inline">
+                                            <button type="submit" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-all" title="Deactivate Account" onclick="return confirm('Are you sure you want to deactivate this account?')">
+                                                <span class="material-symbols-outlined text-xl">block</span>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Activate" asp-controller="Account" asp-route-id="@account.Id" method="post" class="inline">
+                                            <button type="submit" class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-all" title="Activate Account" onclick="return confirm('Are you sure you want to activate this account?')">
+                                                <span class="material-symbols-outlined text-xl">check_circle</span>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="px-6 py-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                @{
+                    var prevPage = Model.CurrentPage > 1 ? Model.CurrentPage - 1 : 1;
+                    var nextPage = Model.CurrentPage < totalPages ? Model.CurrentPage + 1 : totalPages;
+                }
+                @if (Model.CurrentPage > 1)
+                {
+                    <a asp-action="Index" asp-controller="Account" asp-route-page="@prevPage" asp-route-size="@Model.PageSize" class="flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-lg">chevron_left</span>
+                        Previous
+                    </a>
+                }
+                else
+                {
+                    <span class="flex items-center gap-1 text-sm font-semibold text-slate-400 cursor-not-allowed">
+                        <span class="material-symbols-outlined text-lg">chevron_left</span>
+                        Previous
+                    </span>
+                }
+
+                <div class="flex items-center gap-2">
+                    @for (int i = 1; i <= totalPages && i <= 5; i++)
+                    {
+                        if (i == Model.CurrentPage)
+                        {
+                            <span class="h-8 w-8 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-bold shadow-sm shadow-primary/20">@i</span>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-controller="Account" asp-route-page="@i" asp-route-size="@Model.PageSize" class="h-8 w-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-primary/10 hover:text-primary text-sm font-bold transition-all">@i</a>
+                        }
+                    }
+                    @if (totalPages > 5)
+                    {
+                        <span class="text-slate-400 px-1">...</span>
+                        <a asp-action="Index" asp-controller="Account" asp-route-page="@totalPages" asp-route-size="@Model.PageSize" class="h-8 w-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-primary/10 hover:text-primary text-sm font-bold transition-all">@totalPages</a>
+                    }
+                </div>
+
+                @if (Model.CurrentPage < totalPages)
+                {
+                    <a asp-action="Index" asp-controller="Account" asp-route-page="@nextPage" asp-route-size="@Model.PageSize" class="flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+                        Next
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="flex items-center gap-1 text-sm font-semibold text-slate-400 cursor-not-allowed">
+                        Next
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                    </span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        Showing @Model.Accounts.Count() of @Model.TotalAccount total accounts
+    </div>
+</div>

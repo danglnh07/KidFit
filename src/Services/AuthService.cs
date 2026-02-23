@@ -1,9 +1,54 @@
+using System.Security.Claims;
 using KidFit.Models;
 using KidFit.Shared.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace KidFit.Services
 {
+    // Override the default claims factory to add custom claims to cookie
+    public class CustomClaimsPrincipalFactory(UserManager<ApplicationUser> userManager,
+                                             RoleManager<IdentityRole> roleManager,
+                                             IOptions<IdentityOptions> optionsAccessor) : UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>(userManager, roleManager, optionsAccessor)
+    {
+        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(ApplicationUser user)
+        {
+            var identity = await base.GenerateClaimsAsync(user);
+
+            // Add custom claims 
+            identity.AddClaim(new Claim("Fullname", user.FullName));
+            identity.AddClaim(new Claim("AvatarUrl", user.AvatarUrl ?? ""));
+
+            return identity;
+        }
+    }
+
+    // Service to get current logged in user from cookie
+    public interface ICurrentUserService
+    {
+        public string? Id { get; }
+        public string? Fullname { get; }
+        public string? Username { get; }
+        public string? Role { get; }
+        public string? AvatarUrl { get; }
+    }
+
+    public class CurrentUserService(IHttpContextAccessor context) : ICurrentUserService
+    {
+        private readonly IHttpContextAccessor _context = context;
+
+        public string? Id => _context.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        public string? Fullname => _context.HttpContext?.User.FindFirstValue("Fullname");
+
+        public string? Username => _context.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+
+        public string? Role => _context.HttpContext?.User.FindFirstValue(ClaimTypes.Role);
+
+        public string? AvatarUrl => _context.HttpContext?.User.FindFirstValue("AvatarUrl");
+    }
+
+    // Authentication service
     public class AuthService(UserManager<ApplicationUser> userManager,
                              SignInManager<ApplicationUser> signInManager,
                              IConfiguration configuration,

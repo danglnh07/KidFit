@@ -14,7 +14,7 @@ namespace KidFit.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Global query filter 
-            modelBuilder.Entity<ApplicationUser>().HasQueryFilter(item => item.IsActive);
+            // modelBuilder.Entity<ApplicationUser>().HasQueryFilter(item => item.IsActive);
             modelBuilder.Entity<CardCategory>().HasQueryFilter(item => !item.IsDeleted);
             modelBuilder.Entity<Card>().HasQueryFilter(item => !item.IsDeleted);
             modelBuilder.Entity<Module>().HasQueryFilter(item => !item.IsDeleted);

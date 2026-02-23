@@ -1,0 +1,122 @@
+@using KidFit.ViewModels
+@model AccountViewModelWithRole
+@{
+    ViewData["Title"] = "Account Details";
+}
+
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+    <div class="flex items-center gap-4">
+        <a asp-action="Index" asp-controller="Account" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <span class="material-symbols-outlined text-2xl">arrow_back</span>
+        </a>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Account Details</h2>
+    </div>
+    <div class="flex items-center gap-3">
+        <a asp-action="Update" asp-controller="Account" asp-route-id="@Model.Id" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-all">
+            <span class="material-symbols-outlined text-lg">edit</span>
+            Edit Account
+        </a>
+    </div>
+</header>
+
+<div class="p-8">
+    @if (TempData["Message"] != null)
+    {
+        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 font-medium">
+            @TempData["Message"]
+        </div>
+    }
+
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div class="p-8 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-6">
+                <div class="h-24 w-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-slate-700">
+                    @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                    {
+                        <img alt="Avatar" class="h-full w-full object-cover" src="@Model.AvatarUrl" />
+                    }
+                    else
+                    {
+                        <span class="text-slate-500 dark:text-slate-400 text-3xl font-bold">@Model.Username.Substring(0, 1).ToUpper()</span>
+                    }
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">@Model.Username</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">@Model.Email</p>
+                    <div class="flex items-center gap-3 mt-3">
+                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-tight rounded-full bg-primary/10 text-primary">@Model.Role</span>
+                        <div class="flex items-center gap-2">
+                            <div class="h-2 w-2 rounded-full @(Model.IsActive ? "bg-emerald-500" : "bg-rose-500")"></div>
+                            <span class="text-sm font-medium @(Model.IsActive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")">@(Model.IsActive ? "Active" : "Inactive")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-6">Account Information</h4>
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Account ID</dt>
+                    <dd class="mt-1 text-sm text-slate-900 dark:text-white font-mono bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">@Model.Id</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Username</dt>
+                    <dd class="mt-1 text-sm text-slate-900 dark:text-white">@Model.Username</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Email Address</dt>
+                    <dd class="mt-1 text-sm text-slate-900 dark:text-white">@Model.Email</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Role</dt>
+                    <dd class="mt-1">
+                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-tight rounded-full bg-primary/10 text-primary">@Model.Role</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Status</dt>
+                    <dd class="mt-1">
+                        <div class="flex items-center gap-2">
+                            <div class="h-2 w-2 rounded-full @(Model.IsActive ? "bg-emerald-500" : "bg-rose-500")"></div>
+                            <span class="text-sm font-medium @(Model.IsActive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")">@(Model.IsActive ? "Active" : "Inactive")</span>
+                        </div>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Avatar URL</dt>
+                    <dd class="mt-1 text-sm text-slate-900 dark:text-white">@(string.IsNullOrEmpty(Model.AvatarUrl) ? "Not set" : Model.AvatarUrl)</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-700">
+            <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-4">Quick Actions</h4>
+            <div class="flex flex-wrap gap-3">
+                <a asp-action="Update" asp-controller="Account" asp-route-id="@Model.Id" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-lg">edit</span>
+                    Edit Account
+                </a>
+                @if (Model.IsActive)
+                {
+                    <form asp-action="Deactivate" asp-controller="Account" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-lg text-sm font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors" onclick="return confirm('Are you sure you want to deactivate this account?')">
+                            <span class="material-symbols-outlined text-lg">block</span>
+                            Deactivate Account
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Activate" asp-controller="Account" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors" onclick="return confirm('Are you sure you want to activate this account?')">
+                            <span class="material-symbols-outlined text-lg">check_circle</span>
+                            Activate Account
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

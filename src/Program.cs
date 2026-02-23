@@ -79,6 +79,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("StaffOnly", policy => policy.RequireRole(Role.STAFF.ToString()))
     .AddPolicy("AdminOrStaff", policy => policy.RequireRole(Role.ADMIN.ToString(), Role.STAFF.ToString()));
 
+// Add custom claims factory
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, CustomClaimsPrincipalFactory>();
+
 // Register AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -97,6 +100,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<MailService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Register validators
 builder.Services.AddScoped<IValidator<CardCategory>, CardCategoryValidator>();

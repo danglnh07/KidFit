@@ -1,0 +1,133 @@
+@using KidFit.Services
+@inject ICurrentUserService CurrentUser
+
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - KidFit</title>
+
+    <link rel="icon" type="image/png" href="~/static/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="~/static/favicon.svg" />
+    <link rel="shortcut icon" href="~/static/favicon.ico" />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+    <div class="flex min-h-screen">
+        <aside class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed h-full">
+            <div class="p-6 flex items-center gap-3">
+                <div class="size-10 rounded-lg bg-primary flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined">school</span>
+                </div>
+                <div>
+                    <h1 class="text-slate-900 dark:text-white font-bold text-lg leading-tight">KidFit</h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">Admin Portal</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 py-4 space-y-1">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
+                    asp-action="Dashboard" asp-controller="Home">
+                    @* <span class="material-symbols-outlined">dashboard</span> *@
+                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "fill-1" : "")">group</span>
+                    <span class="text-sm font-medium">Dashboard Overview</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
+                    asp-action="Index" asp-controller="Account">
+                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" ? "fill-1" : "")">group</span>
+                    <span class="text-sm font-medium">Account Management</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
+                    <span class="material-symbols-outlined">auto_stories</span>
+                    <span class="text-sm font-medium">Module Management</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
+                    <span class="material-symbols-outlined">category</span>
+                    <span class="text-sm font-medium">Card Category Management</span>
+                </a>
+            </nav>
+
+            <div class="p-4 mt-auto border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-3 px-2 py-3">
+                    <div class="size-9 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex items-center justify-center">
+                        @if (!string.IsNullOrEmpty(CurrentUser.AvatarUrl))
+                        {
+                            <img class="w-full h-full object-cover" src="@CurrentUser.AvatarUrl" alt="Avatar" />
+                        }
+                        else
+                        {
+                            @*
+                                Use the first letter of username to create pseudo avatar
+                            *@
+                            <span class="text-slate-500 dark:text-slate-400 text-sm font-bold">@(CurrentUser.Username?.ToString()?.Substring(0, 1).ToUpper() ?? "U")</span>
+                        }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        @*
+                            Services will force every user to have username and role, so technically it impossible 
+                            to have username or role to be null
+                        *@
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">@CurrentUser.Username</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">@CurrentUser.Role</p>
+                    </div>
+                    <form asp-action="Logout" asp-controller="Auth" method="post">
+                        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" type="submit">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 ml-72">
+            @RenderBody()
+        </main>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
