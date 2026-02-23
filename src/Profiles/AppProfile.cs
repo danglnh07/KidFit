@@ -30,6 +30,10 @@ namespace KidFit.Profiles
             CreateMap<CreateCardCategoryViewModel, CardCategory>();
             CreateMap<CardCategory, CardCategoryViewModel>();
             CreateMap<CardCategoryViewModel, CardCategory>();
+
+            CreateMap<CreateModuleViewModel, Module>();
+            CreateMap<Module, ModuleViewModel>();
+            CreateMap<ModuleViewModel, Module>();
         }
     }
 
