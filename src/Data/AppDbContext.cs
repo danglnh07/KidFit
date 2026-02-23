@@ -25,7 +25,7 @@ namespace KidFit.Data
                 .HasKey(item => item.Id);
             modelBuilder.Entity<CardCategory>()
                 .HasIndex(item => item.Name)
-                .IsUnique();
+                .IsUnique().HasFilter("\"IsDeleted\" = false");
 
             // Card entity setup
             modelBuilder.Entity<Card>()
@@ -36,14 +36,14 @@ namespace KidFit.Data
                 .HasForeignKey(item => item.CategoryId);
             modelBuilder.Entity<Card>()
                 .HasIndex(item => item.Name)
-                .IsUnique();
+                .IsUnique().HasFilter("\"IsDeleted\" = false");
 
             // Module entity setup
             modelBuilder.Entity<Module>()
                 .HasKey(item => item.Id);
             modelBuilder.Entity<Module>()
                 .HasIndex(item => item.Name)
-                .IsUnique();
+                .IsUnique().HasFilter("\"IsDeleted\" = false");
 
             // Lesson entity setup
             modelBuilder.Entity<Lesson>()
