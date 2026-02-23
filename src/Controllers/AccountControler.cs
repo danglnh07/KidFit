@@ -20,33 +20,45 @@ namespace KidFit.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Index(int page, int size, string? orderBy, bool? isAsc)
         {
+            // To avoid N + 1 query, we won't fetch accounts' roles in this method,
+            // since UserManager and RoleManager doesn't allow for prefetching,
+            // and work-around solution is too cumbersome to implement.
+
+            // Create query parameter
             var param = new QueryParam<ApplicationUser>(page, size, orderBy, isAsc);
+
+            // Get all accounts (including inactive, since this is admin dashboard)
             var accounts = await _accountService.GetAllAccounts(param, true);
+
+            // Map from model to view model
             var resp = _mapper.Map<IPagedList<AccountViewModel>>(accounts);
+
             return View(resp);
         }
 
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Detail(string id)
         {
+            // Get account by ID
             var account = await _accountService.GetAccountById(id);
             if (account is null)
             {
-                TempData["Error"] = "Account not found";
+                TempData[MessageLevel.WARNING.ToString()] = "Account not found";
                 return RedirectToAction("Index", "Account");
             }
 
+            // Get account's role 
             var role = await _accountService.GetRoleByAccount(account);
+
+            // Map models to view model
             var resp = _mapper.Map<AccountViewModelWithRole>(account);
             resp.Role = role.ToString();
+
             return View(resp);
         }
 
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Create()
-        {
-            return View();
-        }
+        public async Task<IActionResult> Create() => View();
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
@@ -54,10 +66,17 @@ namespace KidFit.Controllers
         {
             try
             {
-                // Try parse role 
-                if (Enum.TryParse(req.Role, out Role role))
+                if (!ModelState.IsValid)
                 {
-                    TempData["Message"] = "Invalid role";
+                    TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
+                    return RedirectToAction("Create", "Account");
+                }
+
+                // Try parse role
+                if (!Enum.TryParse(req.Role, out Role role))
+                {
+                    TempData[MessageLevel.WARNING.ToString()] = "Invalid role value";
+                    return RedirectToAction("Create", "Account");
                 }
 
                 // Create account model
@@ -65,65 +84,78 @@ namespace KidFit.Controllers
 
                 // Create account
                 await _accountService.CreateAccountAsync(account, role);
-                TempData["Message"] = "Account created successfully";
+                TempData[MessageLevel.SUCCESS.ToString()] = "Account created successfully";
                 return RedirectToAction("Index", "Account");
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to create account: {ex.Message}");
-                TempData["Message"] = ex.Message;
+                TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return RedirectToAction("Create", "Account");
             }
             catch (Exception ex)
             {
+                // Since this is unexpected error, we'll redirect to a dedicated error page 
+                // without any detail error message
                 _logger.LogError($"Failed to create account: {ex.Message}");
-                TempData["Message"] = "Failed to create account";
-                return RedirectToAction("Create", "Account");
+                return RedirectToAction("Error", "Error");
             }
         }
 
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Update(string id)
         {
+            // Get account by ID
             var account = await _accountService.GetAccountById(id);
             if (account is null)
             {
-                TempData["Message"] = "Account not found";
+                TempData[MessageLevel.WARNING.ToString()] = "Account not found";
                 return RedirectToAction("Index", "Account");
             }
 
+            // Map from model to view model
             var resp = _mapper.Map<AccountViewModel>(account);
+
             return View(resp);
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Update(string id, UpdateAccountViewModel req)
+        public async Task<IActionResult> Update(string id, AccountViewModel req)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
+                    return RedirectToAction("Update", "Account");
+                }
+
+                // Map from request ViewModel to model 
                 var account = _mapper.Map<ApplicationUser>(req);
+
+                // Update account
                 await _accountService.UpdateAccount(id, account);
-                TempData["Message"] = "Account updated successfully";
+
+                // Redirect to index page
+                TempData[MessageLevel.SUCCESS.ToString()] = "Account updated successfully";
                 return RedirectToAction("Index", "Account");
             }
-            catch (NotFoundException ex)
+            catch (NotFoundException)
             {
-                _logger.LogWarning($"Failed to update account: {ex.Message}");
-                TempData["Error"] = "Account not found";
-                return RedirectToAction("Update", "Account");
+                TempData[MessageLevel.WARNING.ToString()] = "Account not found";
+                return RedirectToAction("Index", "Account");
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to update account: {ex.Message}");
-                TempData["Message"] = ex.Message;
+                TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return RedirectToAction("Update", "Account");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update account: {ex.Message}");
-                TempData["Message"] = "Failed to update account";
-                return RedirectToAction("Update", "Account");
+                return RedirectToAction("Error", "Error");
             }
         }
 
@@ -133,27 +165,28 @@ namespace KidFit.Controllers
         {
             try
             {
+                // Deactivate account
                 await _accountService.DeactivateAccount(id);
-                TempData["Success"] = "Account deactivated";
+
+                // Redirect to index page
+                TempData[MessageLevel.SUCCESS.ToString()] = "Account deactivated";
                 return RedirectToAction("Index", "Account");
             }
-            catch (NotFoundException ex)
+            catch (NotFoundException)
             {
-                _logger.LogWarning($"Failed to deactivate account: {ex.Message}");
-                TempData["Error"] = "Account not found";
+                TempData[MessageLevel.WARNING.ToString()] = "Account not found";
                 return RedirectToAction("Index", "Account");
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to deactivate account: {ex.Message}");
-                TempData["Error"] = ex.Message;
+                TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return RedirectToAction("Index", "Account");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to deactivate account: {ex.Message}");
-                TempData["Error"] = "Failed to deactivate account";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction("Error", "Error");
             }
         }
 
@@ -163,27 +196,28 @@ namespace KidFit.Controllers
         {
             try
             {
+                // Activate account
                 await _accountService.ActivateAccount(id);
-                TempData["Success"] = "Account activated";
+
+                // Redirect to index page
+                TempData[MessageLevel.SUCCESS.ToString()] = "Account activated";
                 return RedirectToAction("Index", "Account");
             }
-            catch (NotFoundException ex)
+            catch (NotFoundException)
             {
-                _logger.LogWarning($"Failed to activate account: {ex.Message}");
-                TempData["Error"] = "Account not found";
+                TempData[MessageLevel.WARNING.ToString()] = "Account not found";
                 return RedirectToAction("Index", "Account");
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to activate account: {ex.Message}");
-                TempData["Error"] = ex.Message;
+                TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return RedirectToAction("Index", "Account");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to activate account: {ex.Message}");
-                TempData["Error"] = "Failed to activate account";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction("Error", "Error");
             }
         }
     }

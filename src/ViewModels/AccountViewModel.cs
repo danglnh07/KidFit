@@ -1,31 +1,45 @@
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+
 namespace KidFit.ViewModels
 {
     public class CreateAccountViewModel
     {
+        [Required]
+        [NotNull]
         public string UserName { get; set; } = "";
+        [Required]
+        [NotNull]
+        [EmailAddress]
         public string Email { get; set; } = "";
+        [Required]
+        [NotNull]
         public string Role { get; set; } = "";
         public string? AvatarUrl { get; set; }
     }
 
-    public class UpdateAccountViewModel
-    {
-        public string? UserName { get; set; } = null;
-        public string? Email { get; set; } = null;
-        public string? AvatarUrl { get; set; } = null;
-    }
-
     public class AccountViewModel
     {
+        [Required]
+        [NotNull]
         public string Id { get; set; } = "";
-        public string Username { get; set; } = "";
+        [Required]
+        [NotNull]
+        public string UserName { get; set; } = "";
+        [Required]
+        [NotNull]
+        [EmailAddress]
         public string Email { get; set; } = "";
+        [Required]
+        [NotNull]
         public bool IsActive { get; set; }
         public string? AvatarUrl { get; set; }
     }
 
     public class AccountViewModelWithRole : AccountViewModel
     {
+        [Required]
+        [NotNull]
         public string Role { get; set; } = "";
     }
 }

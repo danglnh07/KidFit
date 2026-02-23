@@ -24,15 +24,25 @@ namespace KidFit.Shared.Queries
                 }
             }
 
-            throw new ArgumentException($"OrderBy property {orderBy} not found in type {typeof(T).Name}");
+            return null;
         }
 
         public QueryParam(int page, int size, string? orderBy, bool? isAsc)
         {
             Page = page < 1 ? 1 : page;
             Size = size <= 0 ? 5 : size;
-            IsAsc = isAsc;
-            OrderBy = FromStringToExpression(orderBy);
+
+            var exp = FromStringToExpression(orderBy);
+            if (exp is null)
+            {
+                IsAsc = null;
+                OrderBy = null;
+            }
+            else
+            {
+                IsAsc = isAsc;
+                OrderBy = FromStringToExpression(orderBy);
+            }
         }
 
         public QueryParam(int page, int size)

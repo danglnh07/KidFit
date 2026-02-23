@@ -24,13 +24,8 @@ namespace KidFit.Profiles
 
             CreateMap<CreateAccountViewModel, ApplicationUser>();
             CreateMap<ApplicationUser, AccountViewModel>();
+            CreateMap<AccountViewModel, ApplicationUser>();
             CreateMap<ApplicationUser, AccountViewModelWithRole>();
-            CreateMap<UpdateAccountViewModel, ApplicationUser>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
-                {
-                    if (srcMember is null) return false;
-                    return true;
-                }));
         }
     }
 

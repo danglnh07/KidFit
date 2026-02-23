@@ -37,11 +37,11 @@
                     }
                     else
                     {
-                        <span class="text-slate-500 dark:text-slate-400 text-3xl font-bold">@Model.Username.Substring(0, 1).ToUpper()</span>
+                        <span class="text-slate-500 dark:text-slate-400 text-3xl font-bold">@Model.UserName.Substring(0, 1).ToUpper()</span>
                     }
                 </div>
                 <div>
-                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">@Model.Username</h3>
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">@Model.UserName</h3>
                     <p class="text-slate-500 dark:text-slate-400 mt-1">@Model.Email</p>
                     <div class="flex items-center gap-3 mt-3">
                         <span class="px-3 py-1 text-xs font-bold uppercase tracking-tight rounded-full bg-primary/10 text-primary">@Model.Role</span>
@@ -62,8 +62,8 @@
                     <dd class="mt-1 text-sm text-slate-900 dark:text-white font-mono bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">@Model.Id</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Username</dt>
-                    <dd class="mt-1 text-sm text-slate-900 dark:text-white">@Model.Username</dd>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">UserName</dt>
+                    <dd class="mt-1 text-sm text-slate-900 dark:text-white">@Model.UserName</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Email Address</dt>
