@@ -1,8 +1,9 @@
 @using KidFit.ViewModels
-@model AccountsViewModel
+@using X.PagedList
+@model IPagedList<AccountViewModel>
 @{
     ViewData["Title"] = "Account Management";
-    var totalPages = (int)Math.Ceiling((double)Model.TotalAccount / Model.PageSize);
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItemCount / Model.PageSize);
 }
 
 <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
@@ -53,7 +54,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                    @foreach (var account in Model.Accounts)
+                    @foreach (var account in Model)
                     {
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -116,10 +117,10 @@
         {
             <div class="px-6 py-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
                 @{
-                    var prevPage = Model.CurrentPage > 1 ? Model.CurrentPage - 1 : 1;
-                    var nextPage = Model.CurrentPage < totalPages ? Model.CurrentPage + 1 : totalPages;
+                    var prevPage = Model.PageNumber > 1 ? Model.PageNumber - 1 : 1;
+                    var nextPage = Model.PageNumber < totalPages ? Model.PageNumber + 1 : totalPages;
                 }
-                @if (Model.CurrentPage > 1)
+                @if (Model.PageNumber > 1)
                 {
                     <a asp-action="Index" asp-controller="Account" asp-route-page="@prevPage" asp-route-size="@Model.PageSize" class="flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
                         <span class="material-symbols-outlined text-lg">chevron_left</span>
@@ -137,7 +138,7 @@
                 <div class="flex items-center gap-2">
                     @for (int i = 1; i <= totalPages && i <= 5; i++)
                     {
-                        if (i == Model.CurrentPage)
+                        if (i == Model.PageNumber)
                         {
                             <span class="h-8 w-8 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-bold shadow-sm shadow-primary/20">@i</span>
                         }
@@ -153,7 +154,7 @@
                     }
                 </div>
 
-                @if (Model.CurrentPage < totalPages)
+                @if (Model.PageNumber < totalPages)
                 {
                     <a asp-action="Index" asp-controller="Account" asp-route-page="@nextPage" asp-route-size="@Model.PageSize" class="flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
                         Next
@@ -172,6 +173,6 @@
     </div>
 
     <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">
-        Showing @Model.Accounts.Count() of @Model.TotalAccount total accounts
+        Showing @Model.Count() of @Model.TotalItemCount total accounts
     </div>
 </div>

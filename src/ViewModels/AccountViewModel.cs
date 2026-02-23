@@ -28,12 +28,4 @@ namespace KidFit.ViewModels
     {
         public string Role { get; set; } = "";
     }
-
-    public class AccountsViewModel
-    {
-        public int TotalAccount { get; set; }
-        public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        public IEnumerable<AccountViewModel> Accounts { get; set; } = [];
-    }
 }

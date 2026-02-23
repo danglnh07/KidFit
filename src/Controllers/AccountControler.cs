@@ -7,6 +7,7 @@ using KidFit.Shared.Queries;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList;
 
 namespace KidFit.Controllers
 {
@@ -20,17 +21,8 @@ namespace KidFit.Controllers
         public async Task<IActionResult> Index(int page, int size, string? orderBy, bool? isAsc)
         {
             var param = new QueryParam<ApplicationUser>(page, size, orderBy, isAsc);
-
             var accounts = await _accountService.GetAllAccounts(param, true);
-
-            var resp = new AccountsViewModel()
-            {
-                TotalAccount = accounts.TotalItemCount,
-                CurrentPage = accounts.PageNumber,
-                PageSize = accounts.PageSize,
-                Accounts = _mapper.Map<List<AccountViewModel>>(accounts),
-            };
-
+            var resp = _mapper.Map<IPagedList<AccountViewModel>>(accounts);
             return View(resp);
         }
 
