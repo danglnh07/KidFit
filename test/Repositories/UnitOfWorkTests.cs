@@ -1,37 +1,35 @@
 using KidFit.Data;
 using KidFit.Models;
 using KidFit.Repositories;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KidFit.Tests.Repositories
 {
-    public class UnitOfWorkTests : IDisposable
+    public class UnitOfWorkTests : IClassFixture<PostgresFixture>, IAsyncLifetime
     {
-        private readonly SqliteConnection _connection;
         private readonly AppDbContext _context;
         private readonly UnitOfWork _unitOfWork;
+        private IDbContextTransaction _transaction = null!;
 
-        public UnitOfWorkTests()
+        public UnitOfWorkTests(PostgresFixture fixture)
         {
-            // Use SQLite in-memory database for consistency with GenericRepoTests
-            _connection = new SqliteConnection("DataSource=:memory:");
-            _connection.Open();
-
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_connection)
-                .Options;
-
+            var options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(fixture.ConnectionString).Options;
             _context = new AppDbContext(options);
-            _context.Database.EnsureCreated();
             _unitOfWork = new UnitOfWork(_context);
         }
 
-        public void Dispose()
+        public async Task InitializeAsync()
         {
-            _unitOfWork.Dispose();
-            _connection.Close();
-            _connection.Dispose();
+            // Start each test in isolation transaction
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            // Rollback transaction after complete a test to avoid sharing data between tests
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
         }
 
         [Fact]
@@ -106,15 +104,6 @@ namespace KidFit.Tests.Repositories
             Assert.Equal(2, changes);
             var count = await _context.Modules.CountAsync();
             Assert.Equal(2, count);
-        }
-
-        [Fact]
-        public void Dispose_DisposesContext()
-        {
-            _unitOfWork.Dispose();
-
-            // After disposal, context should not be usable
-            Assert.Throws<ObjectDisposedException>(() => _context.Modules.ToList());
         }
 
         [Fact]

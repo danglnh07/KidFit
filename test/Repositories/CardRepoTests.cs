@@ -2,37 +2,36 @@ using KidFit.Data;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Queries;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KidFit.Tests.Repositories
 {
     [Collection("RepositoryTests")]
-    public class CardRepoTests : IDisposable
+    public class CardRepoTests : IClassFixture<PostgresFixture>, IAsyncLifetime
     {
-        private readonly SqliteConnection _connection;
         private readonly AppDbContext _context;
         private readonly CardRepo _repo;
+        private IDbContextTransaction _transaction = null!;
 
-        public CardRepoTests()
+        public CardRepoTests(PostgresFixture fixture)
         {
-            _connection = new SqliteConnection("DataSource=:memory:");
-            _connection.Open();
-
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_connection)
-                .Options;
-
+            var options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(fixture.ConnectionString).Options;
             _context = new AppDbContext(options);
-            _context.Database.EnsureCreated();
             _repo = new CardRepo(_context);
         }
 
-        public void Dispose()
+        public async Task InitializeAsync()
         {
-            _context.Dispose();
-            _connection.Close();
-            _connection.Dispose();
+            // Start each test in isolation transaction
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            // Rollback transaction after complete a test to avoid sharing data between tests
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
         }
 
         [Fact]
@@ -80,7 +79,6 @@ namespace KidFit.Tests.Repositories
             var category = new CardCategory
             {
                 Id = Guid.NewGuid(),
-                // Name = $"Test Category All {_uniqueSuffix}",
                 Name = $"Test Category",
                 Description = "Test Description",
                 BorderColor = "#FF0000"
@@ -132,7 +130,9 @@ namespace KidFit.Tests.Repositories
             var result = await _repo.GetAllWithNestedDataAsync(param);
 
             Assert.NotNull(result);
-            Assert.Equal($"A Card", result.First().Name);
+            Assert.Equal(cards[1].Name, result.First().Name);
+            Assert.NotNull(result.First().Category);
+            Assert.Equal(category.Name, result.First().Category.Name);
         }
 
         [Fact]
@@ -160,7 +160,9 @@ namespace KidFit.Tests.Repositories
             var result = await _repo.GetAllWithNestedDataAsync(param);
 
             Assert.NotNull(result);
-            Assert.Equal($"C Card", result.First().Name);
+            Assert.Equal(cards[2].Name, result.First().Name);
+            Assert.NotNull(result.First().Category);
+            Assert.Equal(category.Name, result.First().Category.Name);
         }
 
         [Fact]
@@ -193,5 +195,6 @@ namespace KidFit.Tests.Repositories
             Assert.Equal(10, result.Count);
             Assert.Equal(2, result.PageNumber);
         }
+
     }
 }

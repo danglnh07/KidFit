@@ -28,6 +28,10 @@ namespace KidFit.Repositories
                     ? query.OrderBy(param.OrderBy)
                     : query.OrderByDescending(param.OrderBy);
             }
+            else
+            {
+                query = query.OrderByDescending(item => item.TimeUpdated);
+            }
 
             return await query.ToPagedListAsync(param.Page, param.Size);
         }

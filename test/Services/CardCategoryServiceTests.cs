@@ -5,31 +5,23 @@ using KidFit.Services;
 using KidFit.Shared.Exceptions;
 using KidFit.Shared.Queries;
 using KidFit.Validators;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace KidFit.Tests.Services
 {
-    public class CardCategoryServiceTests : IDisposable
+    public class CardCategoryServiceTests : IClassFixture<PostgresFixture>, IAsyncLifetime
     {
         private readonly CardCategoryService _service;
-        private readonly SqliteConnection _conn;
         private readonly AppDbContext _context;
+        private IDbContextTransaction _transaction = null!;
 
-        public CardCategoryServiceTests()
+        public CardCategoryServiceTests(PostgresFixture fixture)
         {
-            // Create SQLite connection
-            _conn = new SqliteConnection("DataSource=:memory:");
-            _conn.Open();
-
-            // Create db context
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_conn)
-                .Options;
+            var options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(fixture.ConnectionString).Options;
             _context = new AppDbContext(options);
-            _context.Database.EnsureCreated();
 
             // Create dependencies for service
             var uow = new UnitOfWork(_context);
@@ -38,11 +30,17 @@ namespace KidFit.Tests.Services
             _service = new CardCategoryService(uow, cardCategoryValidator, logger);
         }
 
-        public void Dispose()
+        public async Task InitializeAsync()
         {
-            _context.Dispose();
-            _conn.Close();
-            _conn.Dispose();
+            // Start each test in isolation transaction
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            // Rollback transaction after complete a test to avoid sharing data between tests
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
         }
 
         [Fact]

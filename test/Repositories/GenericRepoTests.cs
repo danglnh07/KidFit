@@ -2,38 +2,35 @@ using KidFit.Data;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Shared.Queries;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KidFit.Tests.Repositories
 {
-    public class GenericRepoTests : IDisposable
+    public class GenericRepoTests : IClassFixture<PostgresFixture>, IAsyncLifetime
     {
-        private readonly SqliteConnection _connection;
         private readonly AppDbContext _context;
         private readonly GenericRepo<Module> _repo;
+        private IDbContextTransaction _transaction = null!;
 
-        public GenericRepoTests()
+        public GenericRepoTests(PostgresFixture fixture)
         {
-            // Use SQLite in-memory database for repository tests
-            // This supports ExecuteUpdateAsync which InMemory provider does not
-            _connection = new SqliteConnection("DataSource=:memory:");
-            _connection.Open();
-
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_connection)
-                .Options;
-
+            var options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(fixture.ConnectionString).Options;
             _context = new AppDbContext(options);
-            _context.Database.EnsureCreated();
             _repo = new GenericRepo<Module>(_context);
         }
 
-        public void Dispose()
+        public async Task InitializeAsync()
         {
-            _context.Dispose();
-            _connection.Close();
-            _connection.Dispose();
+            // Start each test in isolation transaction
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            // Rollback transaction after complete a test to avoid sharing data between tests
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
         }
 
         [Fact]

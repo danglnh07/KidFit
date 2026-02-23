@@ -6,38 +6,38 @@ using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
 using KidFit.Shared.Queries;
 using KidFit.Validators;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KidFit.Tests.Services
 {
-    public class LessonServiceTests : IDisposable
+    public class LessonServiceTests : IClassFixture<PostgresFixture>, IAsyncLifetime
     {
         private readonly LessonService _service;
-        private readonly SqliteConnection _conn;
         private readonly AppDbContext _context;
+        private IDbContextTransaction _transaction = null!;
 
-        public LessonServiceTests()
+        public LessonServiceTests(PostgresFixture fixture)
         {
-            _conn = new SqliteConnection("DataSource=:memory:");
-            _conn.Open();
-
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_conn)
-                .Options;
+            var options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(fixture.ConnectionString).Options;
             _context = new AppDbContext(options);
-            _context.Database.EnsureCreated();
 
             var uow = new UnitOfWork(_context);
             var lessonValidator = new LessonValidator();
             _service = new LessonService(uow, lessonValidator);
         }
 
-        public void Dispose()
+        public async Task InitializeAsync()
         {
-            _context.Dispose();
-            _conn.Close();
-            _conn.Dispose();
+            // Start each test in isolation transaction
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            // Rollback transaction after complete a test to avoid sharing data between tests
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
         }
 
         private async Task<(Module module, Card card)> SeedTestDataAsync()
