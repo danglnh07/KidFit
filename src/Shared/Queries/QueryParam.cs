@@ -30,7 +30,7 @@ namespace KidFit.Shared.Queries
         public QueryParam(int page, int size, string? orderBy, bool? isAsc)
         {
             Page = page < 1 ? 1 : page;
-            Size = size < 0 ? 5 : size;
+            Size = size <= 0 ? 5 : size;
             IsAsc = isAsc;
             OrderBy = FromStringToExpression(orderBy);
         }
