@@ -1,3 +1,4 @@
+@using KidFit.Shared.Constants
 @using KidFit.ViewModels
 @model LoginRequestViewModel
 @{
@@ -78,14 +79,22 @@
             </div>
 
             <!-- Error Message -->
-            @if (TempData["Message"] != null)
+            @if (TempData[MessageLevel.SUCCESS.ToString()] != null)
             {
-                <div class="p-8 pb-0">
-                    <div
-                        class="bg-[#fee2e2] border border-[#fecaca] text-[#dc2626] p-3 rounded-lg text-sm flex items-center gap-2">
-                        <span uk-icon="icon: warning"></span>
-                        @TempData["Message"]!.ToString()
-                    </div>
+                <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium">
+                    @TempData[MessageLevel.SUCCESS.ToString()] 
+                </div>
+            }
+            @if (TempData[MessageLevel.ERROR.ToString()] != null)
+            {
+                <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 font-medium">
+                    @TempData[MessageLevel.ERROR.ToString()]
+                </div>
+            }
+            @if (TempData[MessageLevel.WARNING.ToString()] != null)
+            {
+                <div class="mb-6 p-4 bg-yellow-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 font-medium">
+                    @TempData[MessageLevel.WARNING.ToString()]
                 </div>
             }
 

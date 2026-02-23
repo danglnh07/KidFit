@@ -1,4 +1,5 @@
 using KidFit.Services;
+using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace KidFit.Controllers
                 // Check validation
                 if (!ModelState.IsValid)
                 {
-                    TempData["Message"] = "Invalid login credentials";
+                    TempData[MessageLevel.WARNING.ToString()] = "Invalid login credentials";
                     return View();
                 }
 
@@ -35,14 +36,13 @@ namespace KidFit.Controllers
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Login failed: {ex.Message}");
-                TempData["Message"] = ex.Message;
+                TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return View();
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Login error: {ex.Message}");
-                TempData["Message"] = "An error occurred";
-                return View();
+                return RedirectToAction("Error", "Error");
             }
         }
 
@@ -59,29 +59,27 @@ namespace KidFit.Controllers
                 // Check validation
                 if (!ModelState.IsValid)
                 {
-                    TempData["Message"] = "Invalid reset password credentials";
+                    TempData[MessageLevel.WARNING.ToString()] = "Invalid reset password credentials";
                     return View();
                 }
-
 
                 // Decode token
                 req.Token = Base64UrlEncoder.Decode(req.Token);
 
                 // Reset password
                 await _authService.ResetPasswordAsync(req.Id, req.Token, req.NewPassword);
-                return Redirect("/auth/login");
+                return RedirectToAction("Login", "Auth");
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Reset password failed: {ex.Message}");
-                TempData["Message"] = ex.Message;
+                TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return View(req);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Reset password error: {ex.Message}");
-                TempData["Message"] = "An error occurred";
-                return View(req);
+                return RedirectToAction("Error", "Error");
             }
         }
 
@@ -90,7 +88,7 @@ namespace KidFit.Controllers
         {
             await _authService.Logout();
             _logger.LogInformation("User logged out");
-            return Redirect("/auth/login");
+            return RedirectToAction("Login", "Auth");
         }
     }
 }
