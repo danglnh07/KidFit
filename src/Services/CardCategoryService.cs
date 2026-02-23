@@ -13,7 +13,7 @@ namespace KidFit.Services
         private readonly IValidator<CardCategory> _validator = validator;
         private readonly ILogger<CardCategoryService> _logger = logger;
 
-        public async Task<bool> CreateCardCategory(CardCategory category)
+        public async Task<bool> CreateCardCategoryAsync(CardCategory category)
         {
             // Model validation
             var validationResult = _validator.Validate(category);
@@ -29,7 +29,7 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteCardCategory(Guid id)
+        public async Task<bool> DeleteCardCategoryAsync(Guid id)
         {
             // Soft cascade associating card 
             var deletedCards = await _uow.Repo<Card>().BulkSoftDeleteAsync(c => c.CategoryId == id);
@@ -45,13 +45,13 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<CardCategory?> GetCardCategory(Guid id)
+        public async Task<CardCategory?> GetCardCategoryAsync(Guid id)
         {
             var category = await _uow.Repo<CardCategory>().GetByIdAsync(id);
             return category;
         }
 
-        public async Task<IPagedList<CardCategory>> GetAllCardCategories(QueryParam<CardCategory> param)
+        public async Task<IPagedList<CardCategory>> GetAllCardCategoriesAsync(QueryParam<CardCategory> param)
         {
             // Get the paged list from repo
             var categories = await _uow.Repo<CardCategory>().GetAllAsync(param);
@@ -60,7 +60,7 @@ namespace KidFit.Services
 
         // This method will just check if the new data is valid and then perform the update.
         // The entity passed should be fetched from database.
-        public async Task<bool> UpdateCardCategory(CardCategory category)
+        public async Task<bool> UpdateCardCategoryAsync(CardCategory category)
         {
             // Validation: check if new card category is valid
             var validationResult = _validator.Validate(category);

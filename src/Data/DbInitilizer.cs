@@ -30,7 +30,7 @@ namespace KidFit.Data
             List<Role> roles = [Role.ADMIN, Role.STAFF, Role.TEACHER, Role.SCHOOL, Role.PARENT];
             foreach (var role in roles)
             {
-                await roleService.CreateApplicationRole(role);
+                await roleService.CreateApplicationRoleAsync(role);
             }
 
             // Create default admin account

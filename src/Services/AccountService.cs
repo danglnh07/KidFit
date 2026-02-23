@@ -76,7 +76,7 @@ namespace KidFit.Services
             });
         }
 
-        public async Task<ApplicationUser?> GetAccountById(string id, bool allowInactive = false)
+        public async Task<ApplicationUser?> GetAccountByIdAsync(string id, bool allowInactive = false)
         {
             var account = await _userManager.FindByIdAsync(id);
             if (allowInactive) return account;
@@ -90,7 +90,7 @@ namespace KidFit.Services
             return role;
         }
 
-        public async Task<IPagedList<ApplicationUser>> GetAllAccounts(QueryParam<ApplicationUser> param, bool allowInactive = false)
+        public async Task<IPagedList<ApplicationUser>> GetAllAccountsAsync(QueryParam<ApplicationUser> param, bool allowInactive = false)
         {
             // Build the query
             var query = _userManager.Users.AsQueryable();
@@ -114,7 +114,7 @@ namespace KidFit.Services
         // This method will ignore password regardless of its value
         // Please use the ChangePassword() method for password update
         // Same case with deactive/activate account
-        public async Task<ApplicationUser> UpdateAccount(string id, ApplicationUser req)
+        public async Task<ApplicationUser> UpdateAccountAsync(string id, ApplicationUser req)
         {
             // Get entity from database by ID
             var account = await _userManager.FindByIdAsync(id);
@@ -172,7 +172,7 @@ namespace KidFit.Services
             return account;
         }
 
-        public async Task DeactivateAccount(string id)
+        public async Task DeactivateAccountAsync(string id)
         {
             // Get account by ID
             var account = await _userManager.FindByIdAsync(id) ?? throw NotFoundException.Create(typeof(ApplicationUser).Name);
@@ -188,7 +188,7 @@ namespace KidFit.Services
             }
         }
 
-        public async Task ActivateAccount(string id)
+        public async Task ActivateAccountAsync(string id)
         {
             // Get account by ID
             var account = await _userManager.FindByIdAsync(id) ?? throw NotFoundException.Create(typeof(ApplicationUser).Name);
@@ -204,7 +204,7 @@ namespace KidFit.Services
             }
         }
 
-        public async Task ChangePassword(string id, string oldPassword, string newPassword)
+        public async Task ChangePasswordAsync(string id, string oldPassword, string newPassword)
         {
             // Get account by ID
             var account = await _userManager.FindByIdAsync(id);

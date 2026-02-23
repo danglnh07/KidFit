@@ -59,7 +59,7 @@ namespace KidFit.Services
         private readonly IConfiguration _configuration = configuration;
         private readonly ILogger<AuthService> _logger = logger;
 
-        private async Task<ApplicationUser> GetAndValidateLoginCredentials(string? email, string? username)
+        private async Task<ApplicationUser> GetAndValidateLoginCredentialsAsync(string? email, string? username)
         {
             // Find user by username or email
             ApplicationUser? user;
@@ -114,7 +114,7 @@ namespace KidFit.Services
 
         public async Task LoginWithCookieAsync(string? email, string? username, string password)
         {
-            var user = await GetAndValidateLoginCredentials(email, username);
+            var user = await GetAndValidateLoginCredentialsAsync(email, username);
 
             // Check if password match
             var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
@@ -126,7 +126,7 @@ namespace KidFit.Services
 
         public async Task<string> LoginWithTokenAsync(string? email, string? username, string password)
         {
-            var user = await GetAndValidateLoginCredentials(email, username);
+            var user = await GetAndValidateLoginCredentialsAsync(email, username);
 
             // Check if password match
             var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
@@ -161,7 +161,7 @@ namespace KidFit.Services
         // This method will logout user with Cookie based login method. 
         // For JWT, it should be the UI side to handle that, as we didn't 
         // have blacklist mechanism yet
-        public async Task Logout()
+        public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
         }

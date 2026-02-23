@@ -28,7 +28,7 @@ namespace KidFit.Controllers
             var param = new QueryParam<ApplicationUser>(page, size, orderBy, isAsc);
 
             // Get all accounts (including inactive, since this is admin dashboard)
-            var accounts = await _accountService.GetAllAccounts(param, true);
+            var accounts = await _accountService.GetAllAccountsAsync(param, true);
 
             // Map from model to view model
             var resp = _mapper.Map<IPagedList<AccountViewModel>>(accounts);
@@ -40,7 +40,7 @@ namespace KidFit.Controllers
         public async Task<IActionResult> Detail(string id)
         {
             // Get account by ID
-            var account = await _accountService.GetAccountById(id);
+            var account = await _accountService.GetAccountByIdAsync(id);
             if (account is null)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
@@ -106,7 +106,7 @@ namespace KidFit.Controllers
         public async Task<IActionResult> Update(string id)
         {
             // Get account by ID
-            var account = await _accountService.GetAccountById(id);
+            var account = await _accountService.GetAccountByIdAsync(id);
             if (account is null)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
@@ -135,7 +135,7 @@ namespace KidFit.Controllers
                 var account = _mapper.Map<ApplicationUser>(req);
 
                 // Update account
-                await _accountService.UpdateAccount(id, account);
+                await _accountService.UpdateAccountAsync(id, account);
 
                 // Redirect to index page
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account updated successfully";
@@ -166,7 +166,7 @@ namespace KidFit.Controllers
             try
             {
                 // Deactivate account
-                await _accountService.DeactivateAccount(id);
+                await _accountService.DeactivateAccountAsync(id);
 
                 // Redirect to index page
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account deactivated";
@@ -197,7 +197,7 @@ namespace KidFit.Controllers
             try
             {
                 // Activate account
-                await _accountService.ActivateAccount(id);
+                await _accountService.ActivateAccountAsync(id);
 
                 // Redirect to index page
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account activated";

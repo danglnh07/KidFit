@@ -23,7 +23,7 @@ namespace KidFit.Controllers
         public async Task<IActionResult> Index(int page, int size, string? orderBy, bool? isAsc)
         {
             var param = new QueryParam<CardCategory>(page, size, orderBy, isAsc);
-            var categories = await _cardCategoryService.GetAllCardCategories(param);
+            var categories = await _cardCategoryService.GetAllCardCategoriesAsync(param);
             var resp = _mapper.Map<IPagedList<CardCategoryViewModel>>(categories);
             return View(resp);
         }
@@ -47,7 +47,7 @@ namespace KidFit.Controllers
                 }
 
                 var category = _mapper.Map<CardCategory>(req);
-                if (!await _cardCategoryService.CreateCardCategory(category))
+                if (!await _cardCategoryService.CreateCardCategoryAsync(category))
                 {
                     // If failed, it would be because the dbcontext couldn't
                     // save changes -> db level error -> should be error not warning
@@ -73,7 +73,7 @@ namespace KidFit.Controllers
         {
             try
             {
-                var category = await _cardCategoryService.GetCardCategory(id);
+                var category = await _cardCategoryService.GetCardCategoryAsync(id);
                 if (category is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Card category not found";
@@ -103,7 +103,7 @@ namespace KidFit.Controllers
                 }
 
                 // Get card category from database
-                var category = await _cardCategoryService.GetCardCategory(id);
+                var category = await _cardCategoryService.GetCardCategoryAsync(id);
                 if (category is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Card category not found";
@@ -114,7 +114,7 @@ namespace KidFit.Controllers
                 _mapper.Map(req, category);
 
                 // Update card category
-                if (!await _cardCategoryService.UpdateCardCategory(category))
+                if (!await _cardCategoryService.UpdateCardCategoryAsync(category))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to update card category";
                     return RedirectToAction("Update", "CardCategory");
@@ -140,7 +140,7 @@ namespace KidFit.Controllers
         {
             try
             {
-                if (!await _cardCategoryService.DeleteCardCategory(id))
+                if (!await _cardCategoryService.DeleteCardCategoryAsync(id))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to delete card category";
                     return RedirectToAction("Index", "CardCategory");

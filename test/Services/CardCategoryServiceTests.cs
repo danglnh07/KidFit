@@ -46,7 +46,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateCardCategory_CreatesCategory()
+        public async Task CreateCardCategoryAsync_CreatesCategory()
         {
             var category = new CardCategory()
             {
@@ -56,7 +56,7 @@ namespace KidFit.Tests.Services
                 BorderColor = "#FF0000"
             };
 
-            var result = await _service.CreateCardCategory(category);
+            var result = await _service.CreateCardCategoryAsync(category);
 
             Assert.True(result);
 
@@ -69,7 +69,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateCardCategory_InvalidData_ThrowsValidationException()
+        public async Task CreateCardCategoryAsync_InvalidData_ThrowsValidationException()
         {
             var category = new CardCategory()
             {
@@ -80,11 +80,11 @@ namespace KidFit.Tests.Services
             };
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.CreateCardCategory(category));
+                () => _service.CreateCardCategoryAsync(category));
         }
 
         [Fact]
-        public async Task GetCardCategory_ReturnsCategory()
+        public async Task GetCardCategoryAsync_ReturnsCategory()
         {
             var category = new CardCategory()
             {
@@ -96,7 +96,7 @@ namespace KidFit.Tests.Services
             await _context.CardCategories.AddAsync(category);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetCardCategory(category.Id);
+            var result = await _service.GetCardCategoryAsync(category.Id);
 
             Assert.NotNull(result);
             Assert.Equal(category.Name, result.Name);
@@ -105,15 +105,15 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task GetCardCategory_NotFound_ReturnsNull()
+        public async Task GetCardCategoryAsync_NotFound_ReturnsNull()
         {
-            var result = await _service.GetCardCategory(Guid.NewGuid());
+            var result = await _service.GetCardCategoryAsync(Guid.NewGuid());
 
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task GetAllCardCategories_ReturnsPagedList()
+        public async Task GetAllCardCategoriesAsync_ReturnsPagedList()
         {
             var category1 = new CardCategory()
             {
@@ -132,13 +132,13 @@ namespace KidFit.Tests.Services
             await _context.CardCategories.AddRangeAsync(category1, category2);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetAllCardCategories(new QueryParam<CardCategory>(page: 1, size: 10));
+            var result = await _service.GetAllCardCategoriesAsync(new QueryParam<CardCategory>(page: 1, size: 10));
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async Task UpdateCardCategory_UpdatesCategory()
+        public async Task UpdateCardCategoryAsync_UpdatesCategory()
         {
             var category = new CardCategory()
             {
@@ -153,7 +153,7 @@ namespace KidFit.Tests.Services
             category.Name = "Updated Name";
             category.Description = "Updated Description";
 
-            var result = await _service.UpdateCardCategory(category);
+            var result = await _service.UpdateCardCategoryAsync(category);
 
             Assert.True(result);
 
@@ -164,7 +164,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateCardCategory_InvalidData_ThrowsValidationException()
+        public async Task UpdateCardCategoryAsync_InvalidData_ThrowsValidationException()
         {
             var category = new CardCategory()
             {
@@ -181,11 +181,11 @@ namespace KidFit.Tests.Services
             category.Description = "";
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.UpdateCardCategory(category));
+                () => _service.UpdateCardCategoryAsync(category));
         }
 
         [Fact]
-        public async Task DeleteCardCategory_DeletesCategoryAndCascadeCards()
+        public async Task DeleteCardCategoryAsync_DeletesCategoryAndCascadeCards()
         {
             var category = new CardCategory()
             {
@@ -207,7 +207,7 @@ namespace KidFit.Tests.Services
             await _context.Cards.AddAsync(card);
             await _context.SaveChangesAsync();
 
-            var result = await _service.DeleteCardCategory(category.Id);
+            var result = await _service.DeleteCardCategoryAsync(category.Id);
 
             Assert.True(result);
 
@@ -219,10 +219,10 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteCardCategory_NotFound_ThrowsNotFoundException()
+        public async Task DeleteCardCategoryAsync_NotFound_ThrowsNotFoundException()
         {
             await Assert.ThrowsAsync<NotFoundException>(
-                () => _service.DeleteCardCategory(Guid.NewGuid()));
+                () => _service.DeleteCardCategoryAsync(Guid.NewGuid()));
         }
 
 

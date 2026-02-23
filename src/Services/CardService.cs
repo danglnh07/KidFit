@@ -12,7 +12,7 @@ namespace KidFit.Services
         private readonly IUnitOfWork _uow = uow;
         private readonly IValidator<Card> _validator = validator;
 
-        public async Task<bool> CreateCard(Card card)
+        public async Task<bool> CreateCardAsync(Card card)
         {
             // Model validation
             var validationResult = _validator.Validate(card);
@@ -34,7 +34,7 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteCard(Guid id)
+        public async Task<bool> DeleteCardAsync(Guid id)
         {
             var result = await _uow.Repo<Card>().SoftDeleteAsync(id);
             if (!result)
@@ -44,7 +44,7 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<Card?> GetCard(Guid id, bool allowIncludeNestedData = false)
+        public async Task<Card?> GetCardAsync(Guid id, bool allowIncludeNestedData = false)
         {
             // Use custom repo
             var repo = (CardRepo)_uow.Repo<Card>();
@@ -53,7 +53,7 @@ namespace KidFit.Services
             return allowIncludeNestedData ? await repo.GetByIdWithNestedDataAsync(id) : await repo.GetByIdAsync(id);
         }
 
-        public async Task<IPagedList<Card>> GetAllCards(QueryParam<Card> param, bool allowIncludeNestedData = false)
+        public async Task<IPagedList<Card>> GetAllCardsAsync(QueryParam<Card> param, bool allowIncludeNestedData = false)
         {
             // Use custom repo
             var repo = (CardRepo)_uow.Repo<Card>();
@@ -64,7 +64,7 @@ namespace KidFit.Services
 
         // This method will just check if the new data is valid and then perform the update.
         // The entity passed should be fetched from database.
-        public async Task<bool> UpdateCard(Card card)
+        public async Task<bool> UpdateCardAsync(Card card)
         {
             // Model validation
             var validationResult = _validator.Validate(card);

@@ -11,7 +11,7 @@ namespace KidFit.Services
         private readonly ILogger<TaskScheduleService> _logger = logger;
 
         [TickerFunction(functionName: "SendWelcomeEmail", taskPriority: TickerTaskPriority.High)]
-        public async Task SendWelcomeEmail(TickerFunctionContext ctx, CancellationToken canceled)
+        public async Task SendWelcomeEmailAsync(TickerFunctionContext ctx, CancellationToken canceled)
         {
             _logger.LogInformation($"Start job: Send welcome email");
 

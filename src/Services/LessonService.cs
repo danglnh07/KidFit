@@ -12,7 +12,7 @@ namespace KidFit.Services
         private readonly IUnitOfWork _uow = uow;
         private readonly IValidator<Lesson> _validator = validator;
 
-        public async Task<bool> CreateLesson(Lesson lesson)
+        public async Task<bool> CreateLessonAsync(Lesson lesson)
         {
             // Model validation
             var validationResult = _validator.Validate(lesson);
@@ -41,7 +41,7 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteLesson(Guid id)
+        public async Task<bool> DeleteLessonAsync(Guid id)
         {
             // Since card is an indepedent entity from lesson, delete a lesson wouldn't
             // affect associating cards
@@ -53,7 +53,7 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<Lesson?> GetLesson(Guid id, bool allowIncludeNestedData = false)
+        public async Task<Lesson?> GetLessonAsync(Guid id, bool allowIncludeNestedData = false)
         {
             // Use custom repo
             var repo = (LessonRepo)_uow.Repo<Lesson>();
@@ -62,7 +62,7 @@ namespace KidFit.Services
             return allowIncludeNestedData ? await repo.GetByIdWithNestedDataAsync(id) : await repo.GetByIdAsync(id);
         }
 
-        public async Task<IPagedList<Lesson>> GetAllLessons(QueryParam<Lesson> param, bool allowIncludeNestedData = false)
+        public async Task<IPagedList<Lesson>> GetAllLessonsAsync(QueryParam<Lesson> param, bool allowIncludeNestedData = false)
         {
             // Use custom repo
             var repo = (LessonRepo)_uow.Repo<Lesson>();
@@ -71,7 +71,7 @@ namespace KidFit.Services
             return allowIncludeNestedData ? await repo.GetAllWithNestedDataAsync(param) : await repo.GetAllAsync(param);
         }
 
-        public async Task<bool> UpdateLesson(Lesson lesson)
+        public async Task<bool> UpdateLessonAsync(Lesson lesson)
         {
             // Model validation
             var validationResult = _validator.Validate(lesson);

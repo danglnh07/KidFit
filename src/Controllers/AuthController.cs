@@ -86,7 +86,7 @@ namespace KidFit.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await _authService.Logout();
+            await _authService.LogoutAsync();
             _logger.LogInformation("User logged out");
             return RedirectToAction("Login", "Auth");
         }

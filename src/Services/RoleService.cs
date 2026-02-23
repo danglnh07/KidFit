@@ -9,7 +9,7 @@ namespace KidFit.Services
         private readonly RoleManager<IdentityRole> _roleManager = roleManager;
         private readonly ILogger<RoleService> _logger = logger;
 
-        public async Task CreateApplicationRole(Role role)
+        public async Task CreateApplicationRoleAsync(Role role)
         {
             // Check if role already exists
             if (await _roleManager.RoleExistsAsync(role.ToString()))
@@ -26,7 +26,7 @@ namespace KidFit.Services
             }
         }
 
-        public async Task<bool> DeleteRole(Role role)
+        public async Task<bool> DeleteRoleAsync(Role role)
         {
             // Check if role exists
             if (!await _roleManager.RoleExistsAsync(role.ToString()))

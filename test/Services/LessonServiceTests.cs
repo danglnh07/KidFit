@@ -76,7 +76,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateLesson_CreatesLesson()
+        public async Task CreateLessonAsync_CreatesLesson()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -90,7 +90,7 @@ namespace KidFit.Tests.Services
                 CardIds = [card.Id]
             };
 
-            var result = await _service.CreateLesson(lesson);
+            var result = await _service.CreateLessonAsync(lesson);
 
             Assert.True(result);
 
@@ -101,7 +101,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateLesson_InvalidData_ThrowsValidationException()
+        public async Task CreateLessonAsync_InvalidData_ThrowsValidationException()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -115,11 +115,11 @@ namespace KidFit.Tests.Services
                 CardIds = [card.Id]
             };
 
-            await Assert.ThrowsAsync<ValidationException>(() => _service.CreateLesson(lesson));
+            await Assert.ThrowsAsync<ValidationException>(() => _service.CreateLessonAsync(lesson));
         }
 
         [Fact]
-        public async Task CreateLesson_ModuleNotFound_ThrowsDependentEntityNotFoundException()
+        public async Task CreateLessonAsync_ModuleNotFound_ThrowsDependentEntityNotFoundException()
         {
             var (_, card) = await SeedTestDataAsync();
 
@@ -133,11 +133,11 @@ namespace KidFit.Tests.Services
                 CardIds = [card.Id]
             };
 
-            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.CreateLesson(lesson));
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.CreateLessonAsync(lesson));
         }
 
         [Fact]
-        public async Task CreateLesson_CardNotFound_ThrowsDependentEntityNotFoundException()
+        public async Task CreateLessonAsync_CardNotFound_ThrowsDependentEntityNotFoundException()
         {
             var (module, _) = await SeedTestDataAsync();
 
@@ -151,11 +151,11 @@ namespace KidFit.Tests.Services
                 CardIds = [Guid.NewGuid()]
             };
 
-            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.CreateLesson(lesson));
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.CreateLessonAsync(lesson));
         }
 
         [Fact]
-        public async Task GetLesson_ReturnsLesson()
+        public async Task GetLessonAsync_ReturnsLesson()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -172,7 +172,7 @@ namespace KidFit.Tests.Services
             await _context.Lessons.AddAsync(lesson);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetLesson(lesson.Id);
+            var result = await _service.GetLessonAsync(lesson.Id);
 
             Assert.NotNull(result);
             Assert.Equal(lesson.Name, result.Name);
@@ -183,7 +183,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task GetLesson_WithNestedData_ReturnsLessonWithModuleAndCards()
+        public async Task GetLessonAsync_WithNestedData_ReturnsLessonWithModuleAndCards()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -200,7 +200,7 @@ namespace KidFit.Tests.Services
             await _context.Lessons.AddAsync(lesson);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetLesson(lesson.Id, true);
+            var result = await _service.GetLessonAsync(lesson.Id, true);
 
             Assert.NotNull(result);
             Assert.Equal(lesson.Name, result.Name);
@@ -211,15 +211,15 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task GetLesson_NotFound_ReturnsNull()
+        public async Task GetLessonAsync_NotFound_ReturnsNull()
         {
-            var result = await _service.GetLesson(Guid.NewGuid());
+            var result = await _service.GetLessonAsync(Guid.NewGuid());
 
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task GetAllLessons_ReturnsPagedList()
+        public async Task GetAllLessonsAsync_ReturnsPagedList()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -245,13 +245,13 @@ namespace KidFit.Tests.Services
             await _context.Lessons.AddRangeAsync(lesson1, lesson2);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetAllLessons(new QueryParam<Lesson>(page: 1, size: 10));
+            var result = await _service.GetAllLessonsAsync(new QueryParam<Lesson>(page: 1, size: 10));
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async Task UpdateLesson_UpdatesLesson()
+        public async Task UpdateLessonAsync_UpdatesLesson()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -271,7 +271,7 @@ namespace KidFit.Tests.Services
             lesson.Name = "Updated Name";
             lesson.Content = "Updated Content";
 
-            var result = await _service.UpdateLesson(lesson);
+            var result = await _service.UpdateLessonAsync(lesson);
 
             Assert.True(result);
 
@@ -285,7 +285,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateLesson_InvalidData_ThrowsValidationException()
+        public async Task UpdateLessonAsync_InvalidData_ThrowsValidationException()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -305,11 +305,11 @@ namespace KidFit.Tests.Services
             lesson.Name = "";
             lesson.Content = "";
 
-            await Assert.ThrowsAsync<ValidationException>(() => _service.UpdateLesson(lesson));
+            await Assert.ThrowsAsync<ValidationException>(() => _service.UpdateLessonAsync(lesson));
         }
 
         [Fact]
-        public async Task UpdateLesson_ModuleNotFound_ThrowsDependentEntityNotFoundException()
+        public async Task UpdateLessonAsync_ModuleNotFound_ThrowsDependentEntityNotFoundException()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -328,11 +328,11 @@ namespace KidFit.Tests.Services
 
             lesson.ModuleId = Guid.NewGuid();
 
-            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.UpdateLesson(lesson));
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.UpdateLessonAsync(lesson));
         }
 
         [Fact]
-        public async Task UpdateLesson_CardNotFound_ThrowsDependentEntityNotFoundException()
+        public async Task UpdateLessonAsync_CardNotFound_ThrowsDependentEntityNotFoundException()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -351,11 +351,11 @@ namespace KidFit.Tests.Services
 
             lesson.CardIds = [Guid.NewGuid()];
 
-            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.UpdateLesson(lesson));
+            await Assert.ThrowsAsync<DependentEntityNotFoundException>(() => _service.UpdateLessonAsync(lesson));
         }
 
         [Fact]
-        public async Task DeleteLesson_DeletesLesson()
+        public async Task DeleteLessonAsync_DeletesLesson()
         {
             var (module, card) = await SeedTestDataAsync();
 
@@ -372,7 +372,7 @@ namespace KidFit.Tests.Services
             await _context.Lessons.AddAsync(lesson);
             await _context.SaveChangesAsync();
 
-            var result = await _service.DeleteLesson(lesson.Id);
+            var result = await _service.DeleteLessonAsync(lesson.Id);
 
             Assert.True(result);
 
@@ -381,9 +381,9 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteLesson_NotFound_ThrowsNotFoundException()
+        public async Task DeleteLessonAsync_NotFound_ThrowsNotFoundException()
         {
-            await Assert.ThrowsAsync<NotFoundException>(() => _service.DeleteLesson(Guid.NewGuid()));
+            await Assert.ThrowsAsync<NotFoundException>(() => _service.DeleteLessonAsync(Guid.NewGuid()));
         }
     }
 }

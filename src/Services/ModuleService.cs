@@ -15,7 +15,7 @@ namespace KidFit.Services
         private readonly IValidator<Module> _validator = validator;
         private readonly ILogger<ModuleService> _logger = logger;
 
-        public async Task<bool> CreateModule(Module module)
+        public async Task<bool> CreateModuleAsync(Module module)
         {
             // Model validation
             var validationResult = _validator.Validate(module);
@@ -31,7 +31,7 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteModule(Guid id)
+        public async Task<bool> DeleteModuleAsync(Guid id)
         {
             // Soft cascade associating lessons
             var deletedLesson = await _uow.Repo<Lesson>().BulkSoftDeleteAsync(l => l.ModuleId == id);
@@ -47,20 +47,20 @@ namespace KidFit.Services
             return await _uow.SaveChangesAsync() > 0;
         }
 
-        public async Task<Module?> GetModule(Guid id)
+        public async Task<Module?> GetModuleAsync(Guid id)
         {
             var module = await _uow.Repo<Module>().GetByIdAsync(id);
             return module;
         }
 
-        public async Task<IPagedList<Module>> GetModules(QueryParam<Module> param)
+        public async Task<IPagedList<Module>> GetAllModulesAsync(QueryParam<Module> param)
         {
             // Get the paged list from repo
             var modules = await _uow.Repo<Module>().GetAllAsync(param);
             return modules;
         }
 
-        public async Task<bool> UpdateModule(Module module)
+        public async Task<bool> UpdateModuleAsync(Module module)
         {
             // Model validation
             var validationResult = _validator.Validate(module);

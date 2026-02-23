@@ -44,7 +44,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateModule_CreatesModule()
+        public async Task CreateModuleAsync_CreatesModule()
         {
             var module = new Module()
             {
@@ -55,7 +55,7 @@ namespace KidFit.Tests.Services
                 TotalSlot = 10
             };
 
-            var result = await _service.CreateModule(module);
+            var result = await _service.CreateModuleAsync(module);
 
             Assert.True(result);
 
@@ -68,7 +68,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateModule_InvalidData_ThrowsValidationException()
+        public async Task CreateModuleAsync_InvalidData_ThrowsValidationException()
         {
             var module = new Module()
             {
@@ -80,11 +80,11 @@ namespace KidFit.Tests.Services
             };
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.CreateModule(module));
+                () => _service.CreateModuleAsync(module));
         }
 
         [Fact]
-        public async Task CreateModule_CoreSlotGreaterThanTotalSlot_ThrowsValidationException()
+        public async Task CreateModuleAsync_CoreSlotGreaterThanTotalSlot_ThrowsValidationException()
         {
             var module = new Module()
             {
@@ -96,11 +96,11 @@ namespace KidFit.Tests.Services
             };
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.CreateModule(module));
+                () => _service.CreateModuleAsync(module));
         }
 
         [Fact]
-        public async Task GetModule_ReturnsModule()
+        public async Task GetModuleAsync_ReturnsModule()
         {
             var module = new Module()
             {
@@ -114,7 +114,7 @@ namespace KidFit.Tests.Services
             await _context.Modules.AddAsync(module);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetModule(module.Id);
+            var result = await _service.GetModuleAsync(module.Id);
 
             Assert.NotNull(result);
             Assert.Equal(module.Name, result.Name);
@@ -124,15 +124,15 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task GetModule_NotFound_ReturnsNull()
+        public async Task GetModuleAsync_NotFound_ReturnsNull()
         {
-            var result = await _service.GetModule(Guid.NewGuid());
+            var result = await _service.GetModuleAsync(Guid.NewGuid());
 
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task GetModules_ReturnsPagedList()
+        public async Task GetModuleAsyncs_ReturnsPagedList()
         {
             var module1 = new Module()
             {
@@ -154,13 +154,13 @@ namespace KidFit.Tests.Services
             await _context.Modules.AddRangeAsync(module1, module2);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetModules(new QueryParam<Module>(page: 1, size: 10));
+            var result = await _service.GetAllModulesAsync(new QueryParam<Module>(page: 1, size: 10));
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async Task UpdateModule_UpdatesModule()
+        public async Task UpdateModuleAsync_UpdatesModule()
         {
             var module = new Module()
             {
@@ -177,7 +177,7 @@ namespace KidFit.Tests.Services
             module.Name = "Updated Name";
             module.Description = "Updated Description";
 
-            var result = await _service.UpdateModule(module);
+            var result = await _service.UpdateModuleAsync(module);
 
             Assert.True(result);
 
@@ -190,7 +190,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateModule_InvalidData_ThrowsValidationException()
+        public async Task UpdateModuleAsync_InvalidData_ThrowsValidationException()
         {
             var module = new Module()
             {
@@ -208,11 +208,11 @@ namespace KidFit.Tests.Services
             module.Description = "";
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.UpdateModule(module));
+                () => _service.UpdateModuleAsync(module));
         }
 
         [Fact]
-        public async Task DeleteModule_DeletesModuleAndCascadeLessons()
+        public async Task DeleteModuleAsync_DeletesModuleAndCascadeLessons()
         {
             var module = new Module()
             {
@@ -236,11 +236,11 @@ namespace KidFit.Tests.Services
             await _context.Lessons.AddAsync(lesson);
             await _context.SaveChangesAsync();
 
-            var result = await _service.DeleteModule(module.Id);
+            var result = await _service.DeleteModuleAsync(module.Id);
 
             Assert.True(result);
 
-            var deletedModule = await _service.GetModule(module.Id);
+            var deletedModule = await _service.GetModuleAsync(module.Id);
             Assert.Null(deletedModule);
 
             var deletedLesson = _context.Lessons.FirstOrDefault(l => l.Id == lesson.Id);
@@ -248,10 +248,10 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteModule_NotFound_ThrowsNotFoundException()
+        public async Task DeleteModuleAsync_NotFound_ThrowsNotFoundException()
         {
             await Assert.ThrowsAsync<NotFoundException>(
-                () => _service.DeleteModule(Guid.NewGuid()));
+                () => _service.DeleteModuleAsync(Guid.NewGuid()));
         }
     }
 }

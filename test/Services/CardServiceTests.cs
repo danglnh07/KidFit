@@ -40,7 +40,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateCard_CreatesCard()
+        public async Task CreateCardAsync_CreatesCard()
         {
             var category = new CardCategory()
             {
@@ -61,7 +61,7 @@ namespace KidFit.Tests.Services
                 CategoryId = category.Id
             };
 
-            var result = await _service.CreateCard(card);
+            var result = await _service.CreateCardAsync(card);
 
             Assert.True(result);
 
@@ -73,7 +73,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task CreateCard_InvalidData_ThrowsValidationException()
+        public async Task CreateCardAsync_InvalidData_ThrowsValidationException()
         {
             var category = new CardCategory()
             {
@@ -95,11 +95,11 @@ namespace KidFit.Tests.Services
             };
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.CreateCard(card));
+                () => _service.CreateCardAsync(card));
         }
 
         [Fact]
-        public async Task CreateCard_CategoryNotFound_ThrowsDependentEntityNotFoundException()
+        public async Task CreateCardAsync_CategoryNotFound_ThrowsDependentEntityNotFoundException()
         {
             var card = new Card()
             {
@@ -111,11 +111,11 @@ namespace KidFit.Tests.Services
             };
 
             await Assert.ThrowsAsync<DependentEntityNotFoundException>(
-                () => _service.CreateCard(card));
+                () => _service.CreateCardAsync(card));
         }
 
         [Fact]
-        public async Task GetCard_ReturnsCard()
+        public async Task GetCardAsync_ReturnsCard()
         {
             var category = new CardCategory()
             {
@@ -137,7 +137,7 @@ namespace KidFit.Tests.Services
             await _context.Cards.AddAsync(card);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetCard(card.Id);
+            var result = await _service.GetCardAsync(card.Id);
 
             Assert.NotNull(result);
             Assert.Equal(card.Name, result.Name);
@@ -147,7 +147,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task GetCard_WithNestedData_ReturnsCardWithCategory()
+        public async Task GetCardAsync_WithNestedData_ReturnsCardWithCategory()
         {
             var category = new CardCategory()
             {
@@ -169,7 +169,7 @@ namespace KidFit.Tests.Services
             await _context.Cards.AddAsync(card);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetCard(card.Id, true);
+            var result = await _service.GetCardAsync(card.Id, true);
 
             Assert.NotNull(result);
             Assert.Equal(card.Name, result.Name);
@@ -183,15 +183,15 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task GetCard_NotFound_ReturnsNull()
+        public async Task GetCardAsync_NotFound_ReturnsNull()
         {
-            var result = await _service.GetCard(Guid.NewGuid());
+            var result = await _service.GetCardAsync(Guid.NewGuid());
 
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task GetAllCards_ReturnsPagedList()
+        public async Task GetAllCardsAsync_ReturnsPagedList()
         {
             var category = new CardCategory()
             {
@@ -221,13 +221,13 @@ namespace KidFit.Tests.Services
             await _context.Cards.AddRangeAsync(card1, card2);
             await _context.SaveChangesAsync();
 
-            var result = await _service.GetAllCards(new QueryParam<Card>(page: 1, size: 10));
+            var result = await _service.GetAllCardsAsync(new QueryParam<Card>(page: 1, size: 10));
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async Task UpdateCard_UpdatesCard()
+        public async Task UpdateCardAsync_UpdatesCard()
         {
             var category = new CardCategory()
             {
@@ -252,7 +252,7 @@ namespace KidFit.Tests.Services
             card.Name = "Updated Name";
             card.Description = "Updated Description";
 
-            var result = await _service.UpdateCard(card);
+            var result = await _service.UpdateCardAsync(card);
 
             Assert.True(result);
 
@@ -265,7 +265,7 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateCard_InvalidData_ThrowsValidationException()
+        public async Task UpdateCardAsync_InvalidData_ThrowsValidationException()
         {
             var category = new CardCategory()
             {
@@ -291,11 +291,11 @@ namespace KidFit.Tests.Services
             card.Description = "";
 
             await Assert.ThrowsAsync<ValidationException>(
-                () => _service.UpdateCard(card));
+                () => _service.UpdateCardAsync(card));
         }
 
         [Fact]
-        public async Task UpdateCard_CategoryNotFound_ThrowsDependentEntityNotFoundException()
+        public async Task UpdateCardAsync_CategoryNotFound_ThrowsDependentEntityNotFoundException()
         {
             var category = new CardCategory()
             {
@@ -320,11 +320,11 @@ namespace KidFit.Tests.Services
             card.CategoryId = Guid.NewGuid();
 
             await Assert.ThrowsAsync<DependentEntityNotFoundException>(
-                () => _service.UpdateCard(card));
+                () => _service.UpdateCardAsync(card));
         }
 
         [Fact]
-        public async Task DeleteCard_DeletesCard()
+        public async Task DeleteCardAsync_DeletesCard()
         {
             var category = new CardCategory()
             {
@@ -346,7 +346,7 @@ namespace KidFit.Tests.Services
             await _context.Cards.AddAsync(card);
             await _context.SaveChangesAsync();
 
-            var result = await _service.DeleteCard(card.Id);
+            var result = await _service.DeleteCardAsync(card.Id);
 
             Assert.True(result);
 
@@ -355,10 +355,10 @@ namespace KidFit.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteCard_NotFound_ThrowsNotFoundException()
+        public async Task DeleteCardAsync_NotFound_ThrowsNotFoundException()
         {
             await Assert.ThrowsAsync<NotFoundException>(
-                () => _service.DeleteCard(Guid.NewGuid()));
+                () => _service.DeleteCardAsync(Guid.NewGuid()));
         }
 
     }
