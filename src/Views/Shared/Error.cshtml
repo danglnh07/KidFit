@@ -1,0 +1,225 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>404 Error Page - Not Found</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+          rel="stylesheet" />
+    <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+    <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+        darkMode: "class",
+        theme: {
+        extend: {
+        colors: {
+        "primary": "#336ee6",
+        "background-light": "#f6f6f8",
+        "background-dark": "#111621",
+        },
+        fontFamily: {
+        "display": ["Lexend", "sans-serif"]
+        },
+        borderRadius: {
+        "DEFAULT": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+        },
+        },
+        },
+        }
+    </script>
+    <style>
+        body {
+        font-family: 'Lexend', sans-serif;
+        }
+        .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header
+        class="sticky top-0 z-50 w-full bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-8">
+                    <a class="flex items-center gap-2 text-primary" href="#">
+                        <span class="material-symbols-outlined text-3xl">school</span>
+                        <span
+                        class="text-slate-900 dark:text-slate-100 text-lg font-bold tracking-tight">LearnHub</span>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-6">
+                        <a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+                           href="#">Courses</a>
+                        <a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+                           href="#">Resources</a>
+                        <a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+                           href="#">Pricing</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1.5 border border-transparent focus-within:border-primary/50 transition-all">
+                        <span class="material-symbols-outlined text-slate-400 text-xl">search</span>
+                        <input class="bg-transparent border-none focus:ring-0 text-sm w-48 placeholder:text-slate-400"
+                               placeholder="Search courses..." type="text" />
+                    </div>
+                    <button
+                        class="hidden sm:block text-sm font-semibold text-slate-700 dark:text-slate-200 px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">Log
+                        In</button>
+                        <button
+                            class="bg-primary text-white text-sm font-bold px-5 py-2 rounded-lg hover:bg-primary/90 transition-all shadow-sm">Get
+                            Started</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main Content Area -->
+            <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl w-full text-center">
+                    <!-- Illustration Container -->
+                    <div class="relative mb-8 flex justify-center">
+                        <div
+                            class="w-full max-w-md aspect-square bg-primary/5 rounded-full flex items-center justify-center relative overflow-hidden">
+                            <!-- Stylized 404 Illustration -->
+                            <div class="relative z-10 flex flex-col items-center">
+                                <div
+                                    class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl transform -rotate-3 mb-4 border border-slate-100 dark:border-slate-700">
+                                    <span class="material-symbols-outlined text-primary text-8xl"
+                                          style="font-variation-settings: 'wght' 200;">menu_book</span>
+                                </div>
+                                <div
+                                    class="absolute -right-4 -top-4 bg-primary text-white p-3 rounded-full shadow-lg transform rotate-12">
+                                    <span class="material-symbols-outlined text-2xl">question_mark</span>
+                                </div>
+                                <div
+                                    class="absolute -left-8 bottom-12 bg-yellow-400 p-3 rounded-lg shadow-md transform -rotate-12">
+                                    <span class="material-symbols-outlined text-white text-2xl">search_off</span>
+                                </div>
+                            </div>
+                            <!-- Abstract background shapes -->
+                            <div
+                                class="absolute top-0 left-0 w-24 h-24 bg-primary/10 rounded-full -translate-x-12 -translate-y-12">
+                            </div>
+                            <div
+                                class="absolute bottom-0 right-0 w-32 h-32 bg-primary/10 rounded-full translate-x-16 translate-y-16">
+                            </div>
+                        </div>
+                        <!-- Background Image Decoration -->
+                        <div class="absolute inset-0 opacity-10 pointer-events-none overflow-hidden rounded-3xl"
+                             data-alt="Abstract pattern of floating educational symbols like pencils and rulers"
+                             style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCX9bii_3iTXqVYL5E8KGprYWKxdgsJuQ9dOCipK7THZ5VNPq6fGSGVOICXtXoKfvs88EczITFKGj6iKEyb4BypSAOkyB7qoutiLCGl2qiDfD6jN6gXitWtUilmhRYAGmxzj34-O9-OMIJxltucQXEHutsvqVwBPiIF6BeT-DxqWWF0s6-T-NcDZloHZkOBREWVK9342RC8ys7fAA13U-__0ZjmSpfGjRtSVqiBfenjP88GWfEvZTfP0Gj_etxC6X7QDhQU2rWuQGzh'); background-size: cover;">
+                        </div>
+                    </div>
+                    <!-- Text Content -->
+                    <div class="space-y-4">
+                        <h1 class="text-primary text-8xl md:text-9xl font-bold tracking-tighter">404</h1>
+                        <h2 class="text-2xl md:text-4xl font-bold text-slate-800 dark:text-slate-100 px-4">
+                            Oops! It looks like this page has gone to recess.
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-lg mx-auto text-lg leading-relaxed px-4">
+                            We couldn't find the lesson or resource you were looking for. Try heading back to the dashboard or
+                            searching our library.
+                        </p>
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-white font-bold py-4 px-8 rounded-xl hover:bg-primary/90 transition-all shadow-md active:scale-95 group"
+                               href="#">
+                            <span
+                            class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                            Go Back to Home
+                        </a>
+                        <a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold py-4 px-8 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95"
+                               href="#">
+                            <span class="material-symbols-outlined">help_center</span>
+                            Visit Help Center
+                        </a>
+                    </div>
+                    <!-- Quick Search Suggestion -->
+                    <div class="mt-12 max-w-md mx-auto">
+                        <p class="text-sm font-medium text-slate-400 dark:text-slate-500 mb-3">Or try searching for what you
+                            need:</p>
+                            <div class="relative">
+                                <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                                <input
+                                class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-700 dark:text-slate-200"
+                                placeholder="Find a course or lesson..." type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <!-- Footer -->
+                <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                            <div>
+                                <h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4">Platform</h3>
+                                <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                    <li><a class="hover:text-primary transition-colors" href="#">Browse Courses</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Study Paths</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Certification</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4">Resources</h3>
+                                <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                    <li><a class="hover:text-primary transition-colors" href="#">Community</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Blog</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4">Company</h3>
+                                <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                    <li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Careers</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Contact</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4">Legal</h3>
+                                <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                    <li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+                                    <li><a class="hover:text-primary transition-colors" href="#">Cookie Policy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div
+                            class="pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex items-center gap-2 text-primary/60">
+                                <span class="material-symbols-outlined text-2xl">school</span>
+                                <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">© 2024 LearnHub Inc. All
+                                    rights reserved.</span>
+                                </div>
+                                <div class="flex gap-6">
+                                    <a class="text-slate-400 hover:text-primary transition-colors" href="#"><span
+                                        class="material-symbols-outlined">public</span></a>
+                                        <a class="text-slate-400 hover:text-primary transition-colors" href="#"><span
+                                            class="material-symbols-outlined">rss_feed</span></a>
+                                            <a class="text-slate-400 hover:text-primary transition-colors" href="#"><span
+                                                class="material-symbols-outlined">alternate_email</span></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </footer>
+                            </body>
+
+                        </html>
