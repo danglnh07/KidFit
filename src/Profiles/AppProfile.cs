@@ -26,6 +26,10 @@ namespace KidFit.Profiles
             CreateMap<ApplicationUser, AccountViewModel>();
             CreateMap<AccountViewModel, ApplicationUser>();
             CreateMap<ApplicationUser, AccountViewModelWithRole>();
+
+            CreateMap<CreateCardCategoryViewModel, CardCategory>();
+            CreateMap<CardCategory, CardCategoryViewModel>();
+            CreateMap<CardCategoryViewModel, CardCategory>();
         }
     }
 
