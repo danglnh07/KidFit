@@ -12,9 +12,16 @@ namespace KidFit.Controllers
         private readonly AuthService _authService = authService;
         private readonly ILogger<AuthController> _logger = logger;
 
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(string? returnUrl)
         {
-            return View();
+            _logger.LogInformation($"ReturnUrl {returnUrl}");
+            var resp = new LoginRequestViewModel()
+            {
+                Username = "",
+                Password = "",
+                ReturnUrl = returnUrl
+            };
+            return View(resp);
         }
 
         [HttpPost]
@@ -25,19 +32,41 @@ namespace KidFit.Controllers
                 // Check validation
                 if (!ModelState.IsValid)
                 {
+                    var errors = ModelState.Where(x => x.Value?.Errors.Count > 0).ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                    foreach (var error in errors)
+                    {
+                        _logger.LogWarning($"Field: {error.Key}, Error: {string.Join(", ", error.Value)}");
+                    }
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid login credentials";
-                    return View();
+                    return View(req);
                 }
 
                 // Login
                 await _authService.LoginWithCookieAsync(null, req.Username, req.Password);
-                return RedirectToAction("Dashboard", "Home");
+
+                // Redirect based on return URL and role
+                if (req.ReturnUrl is not null && Url.IsLocalUrl(req.ReturnUrl)) // Prevent XSS
+                {
+                    return Redirect(req.ReturnUrl);
+                }
+                else if (User.IsInRole(Role.ADMIN.ToString()))
+                {
+                    return RedirectToAction("Dashboard", "Home");
+                }
+                else
+                {
+                    // Default case
+                    return RedirectToAction("Index", "Home");
+                }
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Login failed: {ex.Message}");
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
-                return View();
+                return View(req);
             }
             catch (Exception ex)
             {

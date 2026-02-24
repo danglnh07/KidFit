@@ -68,14 +68,12 @@
                         data-alt="Digital learning illustration with books and screens"
                         src="~/static/logo.png"
                     />
-                        @* src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV5Wr6ST9ulXJxyRJCNdYKo7CplEazzqqy8GRN9OYuAC34L5ryyYr8K0NyNyJ6H2exE0KAZD6a2CGpdppwZVAo-PD684dhws13WDOWrKMP-C7oZRSGKXAbs8Z1cTLEGC69QvSCdX6RnDvHkwm5FuKrxzXuToetpz4BAJkrppExqDgvaOi5syTJRorWvE56CD5Q3crEOJZwot8pDE0y1VyEnJ1Ub3BXVJwlanETuaI4mbsvO6uEfZ8-eqMytuvk5QNr58u_TOEA5JZO" /> *@
                     <div class="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-lg shadow-lg">
                         <span class="material-icons text-xl">school</span>
                     </div>
                 </div>
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white mt-4">Welcome Back</h1>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">Access your digital learning
-                    materials</p>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">Access your digital learning materials</p>
             </div>
 
             <!-- Error Message -->
@@ -123,8 +121,6 @@
                                 <span class="material-icons text-primary text-lg">lock_open</span>
                                 Password
                             </label>
-                            @* <a class="text-xs font-semibold text-primary hover:underline transition-all" href="#">Forgot
-                                Password?</a> *@
                         </div>
                         <div class="relative">
                             <input
@@ -139,6 +135,9 @@
                         </div>
                     </div>
 
+                    <!-- Return URL for protected page with unauthorize access -->
+                    <input type="hidden" asp-for="ReturnUrl" value="@Model.ReturnUrl">
+
                     <!-- Submit Button -->
                     <button
                         class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
@@ -147,33 +146,6 @@
                         <span class="material-icons text-lg">arrow_forward</span>
                     </button>
                 </form>
-
-                @* <!-- Divider -->
-                <div class="relative my-8">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
-                    </div>
-                    <div class="relative flex justify-center text-xs uppercase">
-                        <span class="bg-white dark:bg-slate-900 px-3 text-slate-400 font-medium tracking-wider">Or
-                            continue with</span>
-                    </div>
-                </div>
-
-                <!-- SSO Buttons -->
-                <div class="grid grid-cols-2 gap-4">
-                    <button
-                        class="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        <img alt="Google Logo" class="w-5 h-5" data-alt="Google logo icon"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDY6wSI-bGylHFcLjKInKLTTDh0-0qFalTMOl7uq6lrAfQTRBIEqKGmdxn0-D4N1zfK-H4nZMYIEwATNW9rG4mHO5XugMEeQ7V5KwjykAUhdDeIIS7o0kupVBbtz9_OefIB2TU0k0sRoMBCsxJdmNyIaKuTwiqoCt-k5FKGkufymTRL7tKbWh5oVawpgfsyrE5cCS-ZD2ZPZFAUVu8V-pjvgozvJIrSiK2aAwZEg4vz5leIOoLM2GlzUrEbjBwBm4fJa0kQBu8IPekn" />
-                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Google</span>
-                    </button>
-                    <button
-                        class="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        <img alt="Microsoft Logo" class="w-5 h-5" data-alt="Microsoft logo icon"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDueNQfjQw6cZ-J3kDOdkt5_U_8D7pUjSkM3fCfKTklf095fjD7UN9zQ80oSfPX7lv8PPcBXkTnQDehWImJ_Lxp-a4r6_xp18HmtOa7E2tg47YMK0uIH52omlBZBvExuYwxGoIGq4cS6-e-S989n8ndB_pLNXDvNazXMOHXE5znEIXf06DHfdqXGIUjiAyISfSidkZX6lpmSLXkEPqnsWSVDB-Sbg4fDivujRiP9fGQh4WXfQYLnJ4UvBwwPCWyGbKzjmx4vQJVxwCe" />
-                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Microsoft</span>
-                    </button>
-                </div> *@
             </div>
 
             <!-- Card Footer -->

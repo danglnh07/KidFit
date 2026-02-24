@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace KidFit.ViewModels
 {
@@ -9,6 +10,8 @@ namespace KidFit.ViewModels
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
+        [ValidateNever]
+        public string? ReturnUrl { get; set; }
     }
 
     public class ResetPasswordRequestViewModel
