@@ -25,6 +25,13 @@ namespace KidFit.Controllers
             var param = new QueryParam<CardCategory>(page, size, orderBy, isAsc);
             var categories = await _cardCategoryService.GetAllCardCategoriesAsync(param);
             var resp = _mapper.Map<IPagedList<CardCategoryViewModel>>(categories);
+
+            // Return partial view with HTMX
+            if (Request.Headers.ContainsKey("HX-Request"))
+            {
+                return PartialView("_CardCategoryTable", resp);
+            }
+
             return View(resp);
         }
 

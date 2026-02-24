@@ -33,6 +33,12 @@ namespace KidFit.Controllers
             // Map from model to view model
             var resp = _mapper.Map<IPagedList<AccountViewModel>>(accounts);
 
+            // Return partial view with HTMX
+            if (Request.Headers.ContainsKey("HX-Request"))
+            {
+                return PartialView("_AccountTable", resp);
+            }
+
             return View(resp);
         }
 

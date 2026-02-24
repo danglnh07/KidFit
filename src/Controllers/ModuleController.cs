@@ -23,6 +23,13 @@ namespace KidFit.Controllers
             var param = new QueryParam<Module>(page, size, orderBy, isAsc);
             var modules = await _service.GetAllModulesAsync(param);
             var resp = _mapper.Map<IPagedList<ModuleViewModel>>(modules);
+
+            // Return partial view with HTMX
+            if (Request.Headers.ContainsKey("HX-Request"))
+            {
+                return PartialView("_ModuleTable", resp);
+            }
+
             return View(resp);
         }
 
