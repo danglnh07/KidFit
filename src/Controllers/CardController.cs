@@ -36,6 +36,19 @@ namespace KidFit.Controllers
             return View(resp);
         }
 
+        [Authorize]
+        public async Task<IActionResult> Detail(Guid id)
+        {
+            var card = await _cardService.GetCardAsync(id, true);
+            if (card is null)
+            {
+                // Should be 404 error page
+                return RedirectToAction("Error", "Error");
+            }
+            var resp = _mapper.Map<CardViewModel>(card);
+            return View(resp);
+        }
+
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Create()
         {
