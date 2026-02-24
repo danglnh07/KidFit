@@ -42,7 +42,7 @@ namespace KidFit.Services
         public string PrepareWelcomeEmailTemplate(WelcomeEmailParam param)
         {
             // Read template from file
-            var source = File.ReadAllText(Directory.GetCurrentDirectory() + "/wwwroot/templates/welcome_email.html");
+            var source = File.ReadAllText(Directory.GetCurrentDirectory() + "/Resources/Templates/welcome_email.html");
             var template = Template.ParseLiquid(source);
             return template.Render(param);
         }
