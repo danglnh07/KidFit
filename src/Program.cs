@@ -123,7 +123,7 @@ builder.Services.AddTickerQ(options =>
     options.AddDashboard(dashboardOptions =>
     {
         dashboardOptions.SetBasePath("/admin/tickerq");
-        dashboardOptions.WithBasicAuth("admin", "secure-password");
+        dashboardOptions.WithBasicAuth("admin", builder.Configuration["AppSettings:DefaultAdminPassword"]);
     });
 });
 
