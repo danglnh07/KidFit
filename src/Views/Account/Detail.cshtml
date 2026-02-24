@@ -57,10 +57,10 @@
         <div class="p-8">
             <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-6">Account Information</h4>
             <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                @* <div>
                     <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Account ID</dt>
                     <dd class="mt-1 text-sm text-slate-900 dark:text-white font-mono bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">@Model.Id</dd>
-                </div>
+                </div> *@
                 <div>
                     <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">UserName</dt>
                     <dd class="mt-1 text-sm text-slate-900 dark:text-white">@Model.UserName</dd>
@@ -84,10 +84,10 @@
                         </div>
                     </dd>
                 </div>
-                <div>
+                @* <div>
                     <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Avatar URL</dt>
                     <dd class="mt-1 text-sm text-slate-900 dark:text-white">@(string.IsNullOrEmpty(Model.AvatarUrl) ? "Not set" : Model.AvatarUrl)</dd>
-                </div>
+                </div> *@
             </dl>
         </div>
 
