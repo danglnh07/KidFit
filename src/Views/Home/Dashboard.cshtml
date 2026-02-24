@@ -52,26 +52,18 @@
     <section>
         <h4 class="text-lg font-bold mb-4 text-slate-800 dark:text-slate-200">Quick Actions</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <a asp-action="Create" asp-controller="Account" class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
+            <a href="/admin/tickerq"
+               target="_blank"
+               class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
                 <div class="bg-primary group-hover:scale-110 transition-transform size-16 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined text-3xl">person_add</span>
+                    <span class="material-symbols-outlined text-3xl">schedule</span>
                 </div>
                 <div>
-                    <h5 class="text-xl font-bold text-slate-900 dark:text-white">Create New User</h5>
-                    <p class="text-slate-500 dark:text-slate-400 mt-1">Register a new student, instructor, or admin account.</p>
+                    <h5 class="text-xl font-bold text-slate-900 dark:text-white">Task scheduling dashboard</h5>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">Track current background tasks running.</p>
                 </div>
                 <span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors text-3xl">chevron_right</span>
             </a>
-            <button class="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex items-center gap-6 hover:border-primary/50 transition-all text-left">
-                <div class="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all size-16 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/5">
-                    <span class="material-symbols-outlined text-3xl">add_box</span>
-                </div>
-                <div>
-                    <h5 class="text-xl font-bold text-slate-900 dark:text-white">Add New Module</h5>
-                    <p class="text-slate-500 dark:text-slate-400 mt-1">Upload learning materials, quizzes, and resources.</p>
-                </div>
-                <span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors text-3xl">chevron_right</span>
-            </button>
         </div>
     </section>
 </div>
