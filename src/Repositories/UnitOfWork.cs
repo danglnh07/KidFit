@@ -33,6 +33,12 @@ namespace KidFit.Repositories
                     _repos.Add(type, lessonRepo);
                     return (IGenericRepo<T>)lessonRepo;
                 }
+                else if (typeof(T).IsAssignableTo(typeof(CardCategory)))
+                {
+                    var cardCategoryRepo = new CardCategoryRepo(_context);
+                    _repos.Add(type, cardCategoryRepo);
+                    return (IGenericRepo<T>)cardCategoryRepo;
+                }
 
                 // If the model use GenericRepo
                 var repo = new GenericRepo<T>(_context);

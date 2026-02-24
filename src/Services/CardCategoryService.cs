@@ -75,5 +75,11 @@ namespace KidFit.Services
             _uow.Repo<CardCategory>().Update(category);
             return await _uow.SaveChangesAsync() > 0;
         }
+
+        public async Task<IEnumerable<(Guid id, string name)>> GetAllCardCategoriesWithNameOnlyAsync()
+        {
+            var repo = (CardCategoryRepo)_uow.Repo<CardCategory>();
+            return await repo.GetAllCardCategoriesWithNameOnlyAsync();
+        }
     }
 }

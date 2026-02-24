@@ -34,6 +34,13 @@ namespace KidFit.Profiles
             CreateMap<CreateModuleViewModel, Module>();
             CreateMap<Module, ModuleViewModel>();
             CreateMap<ModuleViewModel, Module>();
+
+            CreateMap<CreateCardViewModel, Card>();
+            CreateMap<Card, CardViewModel>();
+            CreateMap<Card, UpdateCardViewModel>();
+            CreateMap<UpdateCardViewModel, Card>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore());
         }
     }
 

@@ -1,0 +1,44 @@
+@using KidFit.ViewModels
+@using X.PagedList
+@model IPagedList<CardViewModel>
+@{
+    ViewData["Title"] = "Card Management";
+}
+
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Card Management</h2>
+    <a asp-action="Create" asp-controller="Card" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold shadow-sm transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+        <span class="material-symbols-outlined text-xl">person_add</span>
+        <span>Create New Card</span>
+    </a>
+</header>
+
+<div class="p-8">
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium">
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 font-medium">
+            @TempData["Error"]
+        </div>
+    }
+    @if (TempData["Message"] != null)
+    {
+        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 font-medium">
+            @TempData["Message"]
+        </div>
+    }
+
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm"
+            id="Card_table">
+        @await Html.PartialAsync("_CardTable", Model)
+    </div>
+
+    <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        Showing @Model.Count() of @Model.TotalItemCount total Cards
+    </div>
+</div>
