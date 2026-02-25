@@ -1,4 +1,5 @@
 @using KidFit.Services
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @inject ICurrentUserService CurrentUser
 
 <!DOCTYPE html>
@@ -81,35 +82,24 @@
 
             <!-- Navigation -->
             <nav class="flex-1 px-4 py-4 space-y-1">
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
-                    asp-action="Dashboard" asp-controller="Home">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "fill-1" : "")">dashboard</span>
-                    <span class="text-sm font-medium">Dashboard Overview</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
-                    asp-action="Index" asp-controller="Account">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" ? "fill-1" : "")">group</span>
-                    <span class="text-sm font-medium">Account Management</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CardCategory" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
-                    asp-action="Index" asp-controller="CardCategory">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CardCategory" ? "fill-1" : "")">auto_stories</span>
-                    <span class="text-sm font-medium">Card Category Management</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Module" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
-                    asp-action="Index" asp-controller="Module">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Module" ? "fill-1" : "")">category</span>
-                    <span class="text-sm font-medium">Module Management</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Card" ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors" 
-                    asp-action="Index" asp-controller="Card">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Card" ? "fill-1" : "")">cards</span>
-                    <span class="text-sm font-medium">Card Management</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
-                    <span class="material-symbols-outlined">cast_for_education</span>
-                    <span class="text-sm font-medium">Lesson Management</span>
-                </a>
+                @{
+                    List<(string controller, string action, string display, string icon)> nav = [
+                        ("Home", "Dashboard", "Dashboard Overview", "dashboard"),
+                        ("Account", "Index", "Account Management", "group"),
+                        ("CardCategory", "Index", "Card Category Management", "auto_stories"),
+                        ("Module", "Index", "Module Management", "category"), 
+                        ("Card", "Index", "Card Management", "cards"), 
+                        ("Lesson", "Index", "Lesson Management", "cast_for_education")
+                    ];
+
+                    foreach ((string controller, string action, string display, string icon) in nav) {
+                        <a asp-action="@action" asp-controller="@controller"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(ViewContext.RouteData.Values["Controller"]?.ToString() == controller ? "bg-primary/10 text-primary font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") transition-colors">
+                            <span class="material-symbols-outlined @(ViewContext.RouteData.Values["Controller"]?.ToString() == controller ? "fill-1" : "")">@icon</span>
+                            <span class="text-sm font-medium">@display</span>
+                        </a>    
+                    }
+                }
             </nav>
 
             <!-- Current logged in user section -->
