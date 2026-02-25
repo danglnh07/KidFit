@@ -32,7 +32,7 @@
         <div class="mb-6 p-4 bg-yellow-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 font-medium">
             @TempData[MessageLevel.WARNING.ToString()]
             @* If this is ModelState error, print it out *@
-            @if (TempData["ErrorLog"] is String[] logs && logs is not null && logs.Count() != 0) {
+            @if (TempData[MessageLevel.LOG.ToString()] is String[] logs && logs is not null && logs.Count() != 0) {
                 <ul>
                     @foreach (var log in logs)
                     {

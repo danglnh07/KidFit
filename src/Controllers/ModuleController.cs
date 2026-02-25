@@ -45,9 +45,9 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Create", "Module");
+                    return RedirectToAction(nameof(Create));
                 }
 
                 var module = _mapper.Map<Module>(req);
@@ -55,20 +55,20 @@ namespace KidFit.Controllers
                 if (!await _service.CreateModuleAsync(module))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to create module";
-                    return RedirectToAction("Create", "Module");
+                    return RedirectToAction(nameof(Create));
                 }
 
-                return RedirectToAction("Index", "Module");
+                return RedirectToAction(nameof(Index));
             }
             catch (ValidationException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Create", "Module");
+                return RedirectToAction(nameof(Create));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to create module: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -81,7 +81,7 @@ namespace KidFit.Controllers
                 if (module is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Module not found";
-                    return RedirectToAction("Index", "Module");
+                    return RedirectToAction(nameof(Index));
                 }
                 var resp = _mapper.Map<ModuleViewModel>(module);
                 return View(resp);
@@ -89,7 +89,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update module: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -101,9 +101,9 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Update", "Module");
+                    return RedirectToAction(nameof(Update));
                 }
 
                 // Get module from database
@@ -111,7 +111,7 @@ namespace KidFit.Controllers
                 if (module is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Module not found";
-                    return RedirectToAction("Index", "Module");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 // Map from request ViewModel to the fetched entity
@@ -121,20 +121,20 @@ namespace KidFit.Controllers
                 if (!await _service.UpdateModuleAsync(module))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to update module";
-                    return RedirectToAction("Update", "Module");
+                    return RedirectToAction(nameof(Update));
                 }
 
-                return RedirectToAction("Index", "Module");
+                return RedirectToAction(nameof(Index));
             }
             catch (ValidationException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Update", "Module");
+                return RedirectToAction(nameof(Update));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update module: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -147,20 +147,20 @@ namespace KidFit.Controllers
                 if (!await _service.DeleteModuleAsync(id))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to delete module";
-                    return RedirectToAction("Index", "Module");
+                    return RedirectToAction(nameof(Index));
                 }
 
-                return RedirectToAction("Index", "Module");
+                return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Module not found";
-                return RedirectToAction("Index", "Module");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to delete module: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 

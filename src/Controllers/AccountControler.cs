@@ -51,7 +51,7 @@ namespace KidFit.Controllers
             if (account is null)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
 
             // Get account's role 
@@ -75,16 +75,16 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Create", "Account");
+                    return RedirectToAction(nameof(Create));
                 }
 
                 // Try parse role
                 if (!Enum.TryParse(req.Role, out Role role))
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid role value";
-                    return RedirectToAction("Create", "Account");
+                    return RedirectToAction(nameof(Create));
                 }
 
                 // Create account model
@@ -93,20 +93,20 @@ namespace KidFit.Controllers
                 // Create account
                 await _accountService.CreateAccountAsync(account, role);
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account created successfully";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to create account: {ex.Message}");
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
-                return RedirectToAction("Create", "Account");
+                return RedirectToAction(nameof(Create));
             }
             catch (Exception ex)
             {
                 // Since this is unexpected error, we'll redirect to a dedicated error page 
                 // without any detail error message
                 _logger.LogError($"Failed to create account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -118,7 +118,7 @@ namespace KidFit.Controllers
             if (account is null)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
 
             // Map from model to view model
@@ -135,9 +135,9 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Update", "Account");
+                    return RedirectToAction(nameof(Update));
                 }
 
                 // Map from request ViewModel to model 
@@ -148,23 +148,23 @@ namespace KidFit.Controllers
 
                 // Redirect to index page
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account updated successfully";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to update account: {ex.Message}");
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
-                return RedirectToAction("Update", "Account");
+                return RedirectToAction(nameof(Update));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -179,23 +179,23 @@ namespace KidFit.Controllers
 
                 // Redirect to index page
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account deactivated";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to deactivate account: {ex.Message}");
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to deactivate account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -210,23 +210,23 @@ namespace KidFit.Controllers
 
                 // Redirect to index page
                 TempData[MessageLevel.SUCCESS.ToString()] = "Account activated";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Account not found";
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (IdentityException ex)
             {
                 _logger.LogWarning($"Failed to activate account: {ex.Message}");
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
-                return RedirectToAction("Index", "Account");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to activate account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
     }

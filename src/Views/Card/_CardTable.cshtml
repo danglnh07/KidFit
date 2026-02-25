@@ -51,7 +51,8 @@
                                         <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </form>
-                            <a href="#" class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="Get QR code">
+                            <a asp-action="GetCardQr" asp-controller="Card" asp-route-id="@Card.Id" asp-route-autoDownload="true" 
+                                class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="Get QR code">
                                 <span class="material-symbols-outlined text-xl">qr_code</span>
                             </a>
                         </div>

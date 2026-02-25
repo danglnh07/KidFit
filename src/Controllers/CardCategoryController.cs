@@ -47,9 +47,9 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Create", "CardCategory");
+                    return RedirectToAction(nameof(Create));
                 }
 
                 var category = _mapper.Map<CardCategory>(req);
@@ -58,19 +58,19 @@ namespace KidFit.Controllers
                     // If failed, it would be because the dbcontext couldn't
                     // save changes -> db level error -> message level should be error not warning
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to create card category";
-                    return RedirectToAction("Create", "CardCategory");
+                    return RedirectToAction(nameof(Create));
                 }
-                return RedirectToAction("Index", "CardCategory");
+                return RedirectToAction(nameof(Index));
             }
             catch (ValidationException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Create", "CardCategory");
+                return RedirectToAction(nameof(Create));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to create card category: unexpeced error occurs {ex.Message}");
-                return RedirectToAction("InteralServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -83,7 +83,7 @@ namespace KidFit.Controllers
                 if (category is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Card category not found";
-                    return RedirectToAction("Index", "CardCategory");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 var resp = _mapper.Map<CardCategoryViewModel>(category);
@@ -92,7 +92,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update card category: unexpeced error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -105,7 +105,7 @@ namespace KidFit.Controllers
                 if (!ModelState.IsValid)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Update", "CardCategory");
+                    return RedirectToAction(nameof(Update));
                 }
 
                 // Get card category from database
@@ -113,7 +113,7 @@ namespace KidFit.Controllers
                 if (category is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Card category not found";
-                    return RedirectToAction("Index", "CardCategory");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 // Map from request ViewModel to the fetched entity
@@ -123,20 +123,20 @@ namespace KidFit.Controllers
                 if (!await _cardCategoryService.UpdateCardCategoryAsync(category))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to update card category";
-                    return RedirectToAction("Update", "CardCategory");
+                    return RedirectToAction(nameof(Update));
                 }
 
-                return RedirectToAction("Index", "CardCategory");
+                return RedirectToAction(nameof(Index));
             }
             catch (ValidationException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Update", "CardCategory");
+                return RedirectToAction(nameof(Update));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update card category: unexpeced error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -149,19 +149,19 @@ namespace KidFit.Controllers
                 if (!await _cardCategoryService.DeleteCardCategoryAsync(id))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to delete card category";
-                    return RedirectToAction("Index", "CardCategory");
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction("Index", "CardCategory");
+                return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Card category not found";
-                return RedirectToAction("Index", "CardCategory");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to delete card category: unexpeced error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
     }

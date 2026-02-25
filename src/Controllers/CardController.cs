@@ -14,11 +14,13 @@ namespace KidFit.Controllers
 {
     public class CardController(CardService cardService,
                                 CardCategoryService cardCategoryService,
+                                LinkGenerator _linkGenerator,
                                 IMapper mapper,
                                 ILogger<CardController> logger) : Controller
     {
         private readonly CardService _cardService = cardService;
         private readonly CardCategoryService _cardCategoryService = cardCategoryService;
+        private readonly LinkGenerator _linkGenerator = _linkGenerator;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<CardController> _logger = logger;
 
@@ -45,7 +47,8 @@ namespace KidFit.Controllers
             {
                 // Admin dashboard detail and other role page use the same view,
                 // so we should throw a 404 page instead of redirect to any other pages
-                return RedirectToAction("NotFoundPage", "Error");
+                // return RedirectToAction("NotFoundPage", "Error");
+                return RedirectToAction(nameof(ErrorController.NotFoundPage));
             }
             var resp = _mapper.Map<CardViewModel>(card);
             return View(resp);
@@ -61,7 +64,7 @@ namespace KidFit.Controllers
             if (categories.Count() == 0)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "No category available. All card must belong to an existing category";
-                return RedirectToAction("Index", "Card");
+                return RedirectToAction(nameof(Index));
             }
 
             IEnumerable<CategoryOption> availaibles = [];
@@ -87,9 +90,9 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Create", "Card");
+                    return RedirectToAction(nameof(Create));
                 }
 
                 var card = _mapper.Map<Card>(req);
@@ -97,15 +100,15 @@ namespace KidFit.Controllers
                 if (!result)
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to create card";
-                    return RedirectToAction("Create", "Card");
+                    return RedirectToAction(nameof(Create));
                 }
 
-                return RedirectToAction("Index", "Card");
+                return RedirectToAction(nameof(Index));
             }
             catch (ValidationException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Create", "Card");
+                return RedirectToAction(nameof(Create));
             }
             catch (DependentEntityNotFoundException ex)
             {
@@ -115,12 +118,12 @@ namespace KidFit.Controllers
                 // then user A create card with that already deleted category wihtout
                 // refreshing the page -> error
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
-                return RedirectToAction("Create", "Card");
+                return RedirectToAction(nameof(Create));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to create card: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -135,7 +138,7 @@ namespace KidFit.Controllers
                 if (card is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Card not found";
-                    return RedirectToAction("Index", "Card");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 // Map Model to ViewModel
@@ -157,7 +160,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update card: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -169,9 +172,9 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
-                    return RedirectToAction("Update", "Card");
+                    return RedirectToAction(nameof(Update));
                 }
 
                 // Get card from database
@@ -179,7 +182,7 @@ namespace KidFit.Controllers
                 if (card is null)
                 {
                     TempData[MessageLevel.WARNING.ToString()] = "Card not found";
-                    return RedirectToAction("Index", "Card");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 _mapper.Map(req, card);
@@ -187,25 +190,25 @@ namespace KidFit.Controllers
                 if (!await _cardService.UpdateCardAsync(card))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to update card";
-                    return RedirectToAction("Update", "Card");
+                    return RedirectToAction(nameof(Update));
                 }
 
-                return RedirectToAction("Index", "Card");
+                return RedirectToAction(nameof(Index));
             }
             catch (ValidationException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Update", "Card");
+                return RedirectToAction(nameof(Update));
             }
             catch (DependentEntityNotFoundException ex)
             {
                 TempData[MessageLevel.WARNING.ToString()] = ex.Message;
-                return RedirectToAction("Update", "Card");
+                return RedirectToAction(nameof(Update));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update card: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -218,20 +221,59 @@ namespace KidFit.Controllers
                 if (!await _cardService.DeleteCardAsync(id))
                 {
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to delete card";
-                    return RedirectToAction("Index", "Card");
+                    return RedirectToAction(nameof(Index));
                 }
 
-                return RedirectToAction("Index", "Card");
+                return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
             {
                 TempData[MessageLevel.WARNING.ToString()] = "Card not found";
-                return RedirectToAction("Index", "Card");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to delete card: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetCardQr(Guid id, bool? autoDownload)
+        {
+            try
+            {
+                // Check id card with this ID exists
+                var card = await _cardService.GetCardAsync(id, false);
+                if (card is null)
+                {
+                    TempData[MessageLevel.WARNING.ToString()] = "Card not found";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Build the Url
+                var url = _linkGenerator.GetUriByAction(HttpContext, nameof(Detail), nameof(CardController), new { id });
+
+                // Build the qr
+                var qr = QrService.GenerateQr(url!);
+
+                // If no download otpion, just stream image back 
+                if (autoDownload is null || autoDownload == false)
+                {
+                    return File(qr, "image/png");
+                }
+
+                // Create filename from card name
+                var filename = $"{card.Name}.png";
+
+                // Stream with auto download
+                return File(qr, "image/png", filename);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to generate QR code: unexpected error occurs {ex.Message}");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
     }

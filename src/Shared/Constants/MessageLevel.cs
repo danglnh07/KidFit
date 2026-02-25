@@ -5,6 +5,7 @@ namespace KidFit.Shared.Constants
     {
         SUCCESS,
         WARNING,
-        ERROR
+        ERROR,
+        LOG
     }
 }

@@ -33,7 +33,7 @@ namespace KidFit.Controllers
                 // Check validation
                 if (!ModelState.IsValid)
                 {
-                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
+                    TempData[MessageLevel.LOG.ToString()] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid login credentials";
                     return View(req);
                 }
@@ -48,13 +48,13 @@ namespace KidFit.Controllers
                 }
                 else if (User.IsInRole(Role.ADMIN.ToString()))
                 {
-                    return RedirectToAction("Dashboard", "Home");
+                    return RedirectToAction(nameof(HomeController.Dashboard));
                 }
                 else
                 {
                     // Default case so that compiler won't complain about missing return
                     // All role should have a dedicated "Home" for them
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction(nameof(HomeController.Index));
                 }
             }
             catch (IdentityException ex)
@@ -66,7 +66,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Login failed: unexpected error occurs: {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -82,7 +82,7 @@ namespace KidFit.Controllers
                 {
                     // We should NOT give a specific error message here
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid reset password credentials";
-                    return View();
+                    return View(req);
                 }
 
                 // Decode token
@@ -90,7 +90,7 @@ namespace KidFit.Controllers
 
                 // Reset password
                 await _authService.ResetPasswordAsync(req.Id, req.Token, req.NewPassword);
-                return RedirectToAction("Login", "Auth");
+                return RedirectToAction(nameof(Login));
             }
             catch (IdentityException ex)
             {
@@ -101,7 +101,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Reset password error: unexpected error occurs {ex.Message}");
-                return RedirectToAction("InternalServerErrorPage", "Error");
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
             }
         }
 
@@ -109,7 +109,7 @@ namespace KidFit.Controllers
         public async Task<IActionResult> Logout()
         {
             await _authService.LogoutAsync();
-            return RedirectToAction("Login", "Auth");
+            return RedirectToAction(nameof(Login));
         }
     }
 }
