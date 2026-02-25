@@ -68,7 +68,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to create module: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -89,7 +89,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update module: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -134,7 +134,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update module: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -160,7 +160,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to delete module: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 

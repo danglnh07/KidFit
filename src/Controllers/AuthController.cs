@@ -48,13 +48,13 @@ namespace KidFit.Controllers
                 }
                 else if (User.IsInRole(Role.ADMIN.ToString()))
                 {
-                    return RedirectToAction(nameof(HomeController.Dashboard));
+                    return RedirectToAction(nameof(HomeController.Dashboard), nameof(HomeController).Replace("Controller", string.Empty));
                 }
                 else
                 {
                     // Default case so that compiler won't complain about missing return
                     // All role should have a dedicated "Home" for them
-                    return RedirectToAction(nameof(HomeController.Index));
+                    return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).Replace("Controller", string.Empty));
                 }
             }
             catch (IdentityException ex)
@@ -66,7 +66,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Login failed: unexpected error occurs: {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -101,7 +101,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Reset password error: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 

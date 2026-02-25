@@ -106,7 +106,7 @@ namespace KidFit.Controllers
                 // Since this is unexpected error, we'll redirect to a dedicated error page 
                 // without any detail error message
                 _logger.LogError($"Failed to create account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -164,7 +164,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -195,7 +195,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to deactivate account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -226,7 +226,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to activate account: unexpected error occurs: {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
     }

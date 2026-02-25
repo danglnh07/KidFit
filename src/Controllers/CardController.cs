@@ -48,7 +48,7 @@ namespace KidFit.Controllers
                 // Admin dashboard detail and other role page use the same view,
                 // so we should throw a 404 page instead of redirect to any other pages
                 // return RedirectToAction("NotFoundPage", "Error");
-                return RedirectToAction(nameof(ErrorController.NotFoundPage));
+                return RedirectToAction(nameof(ErrorController.NotFoundPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
             var resp = _mapper.Map<CardViewModel>(card);
             return View(resp);
@@ -123,7 +123,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to create card: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -160,7 +160,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update card: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -208,7 +208,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to update card: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -234,7 +234,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to delete card: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
 
@@ -273,7 +273,7 @@ namespace KidFit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to generate QR code: unexpected error occurs {ex.Message}");
-                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage));
+                return RedirectToAction(nameof(ErrorController.InternalServerErrorPage), nameof(ErrorController).Replace("Controller", string.Empty));
             }
         }
     }
