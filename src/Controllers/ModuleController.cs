@@ -4,6 +4,7 @@ using KidFit.Services;
 using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
 using KidFit.Shared.Queries;
+using KidFit.Shared.Util;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Create", "Module");
                 }
@@ -65,8 +67,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to create module: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to create module: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -86,8 +88,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update module: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update module: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -99,6 +101,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Update", "Module");
                 }
@@ -130,8 +133,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update module: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update module: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -156,8 +159,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to delete module: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to delete module: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 

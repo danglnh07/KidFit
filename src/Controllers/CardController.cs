@@ -4,6 +4,7 @@ using KidFit.Services;
 using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
 using KidFit.Shared.Queries;
+using KidFit.Shared.Util;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,8 +43,9 @@ namespace KidFit.Controllers
             var card = await _cardService.GetCardAsync(id, true);
             if (card is null)
             {
-                // Should be 404 error page
-                return RedirectToAction("Error", "Error");
+                // Admin dashboard detail and other role page use the same view,
+                // so we should throw a 404 page instead of redirect to any other pages
+                return RedirectToAction("NotFoundPage", "Error");
             }
             var resp = _mapper.Map<CardViewModel>(card);
             return View(resp);
@@ -62,27 +64,17 @@ namespace KidFit.Controllers
                 return RedirectToAction("Index", "Card");
             }
 
-            _logger.LogInformation($"{categories.Count()}");
-
             IEnumerable<CategoryOption> availaibles = [];
             foreach (var (id, name) in categories)
             {
-                availaibles = availaibles.Append(new CategoryOption()
-                {
-                    Id = id,
-                    Name = name
-                });
+                availaibles = availaibles.Append(new CategoryOption(id, name));
             }
-
-            _logger.LogInformation($"{availaibles.Count()}");
 
             // Return to View with categories
             var resp = new CreateCardViewModel()
             {
                 AvailableCategories = availaibles,
             };
-
-            _logger.LogInformation($"{resp.AvailableCategories.Count()}");
 
             return View(resp);
         }
@@ -95,16 +87,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    var errors = ModelState.Where(x => x.Value?.Errors.Count > 0).ToDictionary(
-                        kvp => kvp.Key, // The field name (e.g., "Email" or "Password")
-                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray() // Array of error messages for that field
-                    );
-
-                    foreach (var error in errors)
-                    {
-                        _logger.LogWarning($"Field: {error.Key}, Error: {string.Join(", ", error.Value)}");
-                    }
-
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Create", "Card");
                 }
@@ -129,15 +112,15 @@ namespace KidFit.Controllers
                 // This may be possible even through UI, for example user A
                 // go to Create page -> already fetch the categories list,
                 // then hang the web for a while, in the mean time user B delete a category,
-                // then user A create card with that already deleted category wihtout 
+                // then user A create card with that already deleted category wihtout
                 // refreshing the page -> error
                 TempData[MessageLevel.ERROR.ToString()] = ex.Message;
                 return RedirectToAction("Create", "Card");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to create card: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to create card: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -159,17 +142,13 @@ namespace KidFit.Controllers
                 var resp = _mapper.Map<UpdateCardViewModel>(card);
 
                 // Get the list of all categories available
-                // There should be one category left, since we can still fetch this card, 
-                // so no need to check for empty here
+                // There should be one category left (if service behave correctly),
+                // since we can still fetch this card, so no need to check for empty here
                 var categories = await _cardCategoryService.GetAllCardCategoriesWithNameOnlyAsync();
                 IEnumerable<CategoryOption> availaibles = [];
                 foreach (var (categoryId, name) in categories)
                 {
-                    availaibles = availaibles.Append(new CategoryOption()
-                    {
-                        Id = categoryId,
-                        Name = name
-                    });
+                    availaibles = availaibles.Append(new CategoryOption(id, name));
                 }
                 resp.AvailableCategories = availaibles;
 
@@ -177,8 +156,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update card: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update card: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -190,6 +169,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Update", "Card");
                 }
@@ -224,8 +204,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update card: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update card: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -250,8 +230,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to delete card: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to delete card: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
     }

@@ -1,34 +1,26 @@
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace KidFit.ViewModels
 {
     public class CreateCardCategoryViewModel
     {
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Border color is required")]
         public string BorderColor { get; set; } = "";
     }
 
     public class CardCategoryViewModel
     {
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Border color is required")]
         public string BorderColor { get; set; } = "";
     }
 }

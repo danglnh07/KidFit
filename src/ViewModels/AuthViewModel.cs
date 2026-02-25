@@ -5,9 +5,9 @@ namespace KidFit.ViewModels
 {
     public class LoginRequestViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Username is required for login")]
         public string Username { get; set; } = "";
-        [Required]
+        [Required(ErrorMessage = "Password is required for login")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
         [ValidateNever]
@@ -20,7 +20,8 @@ namespace KidFit.ViewModels
         public string Id { get; set; } = "";
         [Required]
         public string Token { get; set; } = "";
-        [Required]
+        [Required(ErrorMessage = "New password is required")]
+        [DataType(DataType.Password)]
         public string NewPassword { get; set; } = "";
     }
 }

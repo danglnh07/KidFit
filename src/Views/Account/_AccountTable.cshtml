@@ -1,8 +1,9 @@
+@using KidFit.Shared.Util
 @using KidFit.ViewModels
 @using X.PagedList
 @model IPagedList<AccountViewModel>
 @{
-    var totalPages = (int)Math.Ceiling((double)Model.TotalItemCount / Model.PageSize);
+    var totalPages = Util.CalculateTotalPages(Model.TotalItemCount, Model.PageSize);
 }
 <div class="overflow-x-auto">
     <table class="w-full text-left border-collapse">

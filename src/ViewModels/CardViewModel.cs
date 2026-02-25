@@ -1,13 +1,12 @@
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace KidFit.ViewModels
 {
-    public class CategoryOption
+    public class CategoryOption(Guid id, string name)
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = "";
+        public Guid Id { get; set; } = id;
+        public string Name { get; set; } = name;
     }
 
     public class CreateCardViewModel
@@ -15,17 +14,13 @@ namespace KidFit.ViewModels
         [ValidateNever]
         public IEnumerable<CategoryOption> AvailableCategories { get; set; } = null!;
 
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Image is required")]
         public string Image { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Category is required")]
         public Guid CategoryId { get; set; }
     }
 
@@ -46,20 +41,15 @@ namespace KidFit.ViewModels
         [ValidateNever]
         public CardCategoryViewModel Category { get; set; } = null!;
 
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Image is required")]
         public string Image { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Category is required")]
         public Guid CategoryId { get; set; }
     }
 }

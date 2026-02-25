@@ -4,6 +4,7 @@ using KidFit.Services;
 using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
 using KidFit.Shared.Queries;
+using KidFit.Shared.Util;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,10 +37,7 @@ namespace KidFit.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Create()
-        {
-            return View();
-        }
+        public async Task<IActionResult> Create() => View();
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
@@ -49,6 +47,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Create", "CardCategory");
                 }
@@ -57,7 +56,7 @@ namespace KidFit.Controllers
                 if (!await _cardCategoryService.CreateCardCategoryAsync(category))
                 {
                     // If failed, it would be because the dbcontext couldn't
-                    // save changes -> db level error -> should be error not warning
+                    // save changes -> db level error -> message level should be error not warning
                     TempData[MessageLevel.ERROR.ToString()] = "Failed to create card category";
                     return RedirectToAction("Create", "CardCategory");
                 }
@@ -70,8 +69,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to create card category: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to create card category: unexpeced error occurs {ex.Message}");
+                return RedirectToAction("InteralServerErrorPage", "Error");
             }
         }
 
@@ -92,8 +91,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update card category: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update card category: unexpeced error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -136,8 +135,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update card category: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update card category: unexpeced error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -161,8 +160,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to delete card category: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to delete card category: unexpeced error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
     }

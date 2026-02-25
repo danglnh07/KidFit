@@ -1,45 +1,35 @@
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace KidFit.ViewModels
 {
     public class CreateAccountViewModel
     {
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Username is required")]
         public string UserName { get; set; } = "";
-        [Required]
-        [NotNull]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Email is not valid")]
         public string Email { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Role is required")]
         public string Role { get; set; } = "";
         public string? AvatarUrl { get; set; }
     }
 
     public class AccountViewModel
     {
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Id is required")]
         public string Id { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Username is required")]
         public string UserName { get; set; } = "";
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Email is required")]
         [EmailAddress]
         public string Email { get; set; } = "";
-        [Required]
-        [NotNull]
         public bool IsActive { get; set; }
         public string? AvatarUrl { get; set; }
     }
 
     public class AccountViewModelWithRole : AccountViewModel
     {
-        [Required]
-        [NotNull]
+        [Required(ErrorMessage = "Role is required")]
         public string Role { get; set; } = "";
     }
 }

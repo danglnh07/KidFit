@@ -4,6 +4,7 @@ using KidFit.Services;
 using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
 using KidFit.Shared.Queries;
+using KidFit.Shared.Util;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -74,6 +75,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Create", "Account");
                 }
@@ -103,8 +105,8 @@ namespace KidFit.Controllers
             {
                 // Since this is unexpected error, we'll redirect to a dedicated error page 
                 // without any detail error message
-                _logger.LogError($"Failed to create account: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to create account: unexpected error occurs: {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -133,6 +135,7 @@ namespace KidFit.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid request";
                     return RedirectToAction("Update", "Account");
                 }
@@ -160,8 +163,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update account: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to update account: unexpected error occurs: {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -191,8 +194,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to deactivate account: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to deactivate account: unexpected error occurs: {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -222,8 +225,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to activate account: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Failed to activate account: unexpected error occurs: {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
     }

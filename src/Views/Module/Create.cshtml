@@ -30,6 +30,15 @@
     {
         <div class="mb-6 p-4 bg-yellow-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 font-medium">
             @TempData[MessageLevel.WARNING.ToString()]
+            @* If this is ModelState error, print it out *@
+            @if (TempData["ErrorLog"] is String[] logs && logs is not null && logs.Count() != 0) {
+                <ul>
+                    @foreach (var log in logs)
+                    {
+                        <li>@log</li>
+                    }
+                </ul>
+            }
         </div>
     }
 
@@ -38,13 +47,13 @@
             <div class="p-8 space-y-6">
                 <div>
                     <label asp-for="Name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Name</label>
-                    <input asp-for="Name" type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module name" />
+                    <input required asp-for="Name" type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module name" />
                     <span asp-validation-for="Name" class="mt-1 text-sm text-rose-500"></span>
                 </div>
 
                 <div>
                     <label asp-for="Description" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Description</label>
-                    <textarea class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module description"
+                    <textarea required class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module description"
                         asp-for="Description" cols="10" rows="5">
                     </textarea>
                     <span asp-validation-for="Description" class="mt-1 text-sm text-rose-500"></span>
@@ -52,13 +61,13 @@
 
                 <div>
                     <label asp-for="CoreSlot" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Core Slot</label>
-                    <input asp-for="CoreSlot" type="number" min=1 class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module core slot" />
+                    <input required asp-for="CoreSlot" type="number" min=1 class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module core slot" />
                     <span asp-validation-for="CoreSlot" class="mt-1 text-sm text-rose-500"></span>
                 </div>
 
                 <div>
                     <label asp-for="TotalSlot" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Total Slot</label>
-                    <input asp-for="TotalSlot" type="number" min=1 class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module total slot" />
+                    <input required asp-for="TotalSlot" type="number" min=1 class="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Enter Module total slot" />
                     <span asp-validation-for="TotalSlot" class="mt-1 text-sm text-rose-500"></span>
                 </div>
 
@@ -69,7 +78,7 @@
                     Cancel
                 </a>
                 <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold shadow-sm transition-all">
-                    <span class="material-symbols-outlined text-lg">person_add</span>
+                    <span class="material-symbols-outlined text-lg">add_circle</span>
                     Create Module
                 </button>
             </div>

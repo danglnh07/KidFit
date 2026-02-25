@@ -1,6 +1,7 @@
 using KidFit.Services;
 using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
+using KidFit.Shared.Util;
 using KidFit.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -32,14 +33,7 @@ namespace KidFit.Controllers
                 // Check validation
                 if (!ModelState.IsValid)
                 {
-                    var errors = ModelState.Where(x => x.Value?.Errors.Count > 0).ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
-                    foreach (var error in errors)
-                    {
-                        _logger.LogWarning($"Field: {error.Key}, Error: {string.Join(", ", error.Value)}");
-                    }
+                    TempData["ErrorLog"] = Util.GetModelValidationError(ModelState);
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid login credentials";
                     return View(req);
                 }
@@ -58,7 +52,8 @@ namespace KidFit.Controllers
                 }
                 else
                 {
-                    // Default case
+                    // Default case so that compiler won't complain about missing return
+                    // All role should have a dedicated "Home" for them
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -70,15 +65,12 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Login error: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Login failed: unexpected error occurs: {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
-        public async Task<IActionResult> ResetPassword()
-        {
-            return View();
-        }
+        public async Task<IActionResult> ResetPassword() => View();
 
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordRequestViewModel req)
@@ -88,6 +80,7 @@ namespace KidFit.Controllers
                 // Check validation
                 if (!ModelState.IsValid)
                 {
+                    // We should NOT give a specific error message here
                     TempData[MessageLevel.WARNING.ToString()] = "Invalid reset password credentials";
                     return View();
                 }
@@ -107,8 +100,8 @@ namespace KidFit.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Reset password error: {ex.Message}");
-                return RedirectToAction("Error", "Error");
+                _logger.LogError($"Reset password error: unexpected error occurs {ex.Message}");
+                return RedirectToAction("InternalServerErrorPage", "Error");
             }
         }
 
@@ -116,7 +109,6 @@ namespace KidFit.Controllers
         public async Task<IActionResult> Logout()
         {
             await _authService.LogoutAsync();
-            _logger.LogInformation("User logged out");
             return RedirectToAction("Login", "Auth");
         }
     }
