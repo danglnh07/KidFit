@@ -10,7 +10,7 @@ namespace KidFit.Shared.Exceptions
         public static IdentityException Create(string message, IEnumerable<IdentityError> errors)
         {
             var msg = new StringBuilder();
-            msg.AppendLine($"Identity exception: {message}");
+            msg.AppendLine($"{message}");
 
             foreach (var error in errors)
             {

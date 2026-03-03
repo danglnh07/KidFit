@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Welcome Email</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #f6f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        color: #334155;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .email-wrapper {
+        padding: 32px 16px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .email-container {
+        width: 100%;
+        max-width: 600px;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      /* Header */
+      .email-header {
+        padding: 48px 24px 32px;
+        text-align: center;
+        border-bottom: 1px solid #f8fafc;
+      }
+      .email-header .logo-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .email-header .logo-icon {
+        width: 24px;
+        height: 24px;
+        color: #135bec;
+      }
+      .email-header .brand-name {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+      }
+
+      /* Body */
+      .email-body {
+        padding: 40px 48px;
+      }
+
+      .email-body h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 24px;
+      }
+      .email-body h1 .name {
+        color: #135bec;
+        font-weight: 600;
+      }
+
+      .email-body p {
+        font-size: 15px;
+        line-height: 1.7;
+        color: #475569;
+        margin-bottom: 24px;
+      }
+      .email-body p strong {
+        color: #1e293b;
+      }
+
+      /* Credentials card */
+      .credentials-card {
+        background-color: rgba(19, 91, 236, 0.05);
+        border: 1px solid rgba(19, 91, 236, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .credentials-card .icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+      .credentials-card .label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(19, 91, 236, 0.7);
+        margin-bottom: 2px;
+      }
+      .credentials-card .value {
+        font-size: 14px;
+        color: #1e293b;
+      }
+      .credentials-card .value span {
+        font-weight: 700;
+        font-family: "Courier New", Courier, monospace;
+      }
+
+      /* CTA */
+      .cta-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .btn-primary {
+        display: inline-block;
+        background-color: #135bec;
+        color: #ffffff !important;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none;
+        padding: 16px 40px;
+        border-radius: 8px;
+        text-align: center;
+        width: 100%;
+        max-width: 320px;
+        box-shadow: 0 10px 15px -3px rgba(19, 91, 236, 0.3);
+      }
+      .secondary-link-block {
+        margin-top: 32px;
+        font-size: 14px;
+        color: #94a3b8;
+        text-align: center;
+        line-height: 1.6;
+      }
+      .secondary-link-block a {
+        color: #135bec;
+        text-decoration: none;
+        font-weight: 500;
+        word-break: break-all;
+      }
+      .secondary-link-block a:hover {
+        text-decoration: underline;
+      }
+
+      /* Footer */
+      .email-footer {
+        background-color: #f8fafc;
+        padding: 40px 32px;
+        text-align: center;
+        border-top: 1px solid #f1f5f9;
+      }
+      .email-footer .footer-heading {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #94a3b8;
+        margin-bottom: 24px;
+      }
+      .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+      .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #475569;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+      .social-link svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+      .footer-address {
+        font-size: 12px;
+        color: #94a3b8;
+        line-height: 1.7;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .footer-address p {
+        margin-bottom: 4px;
+      }
+      .footer-nav {
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .footer-nav a {
+        font-size: 12px;
+        color: #94a3b8;
+        text-decoration: underline;
+      }
+      .footer-nav a:hover {
+        color: #135bec;
+      }
+      .footer-nav .sep {
+        color: #cbd5e1;
+        font-size: 12px;
+      }
+
+      @media (max-width: 500px) {
+        .email-body {
+          padding: 32px 24px;
+        }
+        .email-footer {
+          padding: 32px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f6f6f8">
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      bgcolor="#f6f6f8"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 16px">
+          <!-- Main Container -->
+          <table
+            role="presentation"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="
+              width: 100%;
+              max-width: 600px;
+              background: #ffffff;
+              border-radius: 12px;
+              overflow: hidden;
+              border: 1px solid #f1f5f9;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                align="center"
+                style="
+                  padding: 48px 24px 32px;
+                  border-bottom: 1px solid #f8fafc;
+                "
+              >
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <tr>
+                    <td align="center">
+                      <span
+                        style="
+                          font-size: 20px;
+                          font-weight: 700;
+                          color: #0f172a;
+                        "
+                      >
+                        KIDFIT
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td
+                style="
+                  padding: 40px 48px;
+                  font-family: Arial, Helvetica, sans-serif;
+                "
+              >
+                <h1
+                  style="
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    margin: 0 0 24px;
+                  "
+                >
+                  Hello <span style="color: #135bec">{{ name }}</span>,
+                </h1>
+
+                <p
+                  style="
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #475569;
+                    margin: 0 0 24px;
+                  "
+                >
+                  Welcome to <strong>KidFit</strong>! We're excited to help you
+                  start your journey. Your account is now active and ready for
+                  exploration.
+                </p>
+
+                <!-- Credentials Card -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  style="
+                    background-color: rgba(19, 91, 236, 0.05);
+                    border: 1px solid rgba(19, 91, 236, 0.1);
+                    border-radius: 8px;
+                    margin-bottom: 40px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 20px">
+                      <p
+                        style="
+                          font-size: 11px;
+                          font-weight: 700;
+                          text-transform: uppercase;
+                          letter-spacing: 0.08em;
+                          color: rgba(19, 91, 236, 0.7);
+                          margin: 0 0 6px;
+                        "
+                      >
+                        Your Account Details
+                      </p>
+                      <p style="font-size: 14px; color: #1e293b; margin: 0">
+                        Your username is:
+                        <span
+                          style="
+                            font-weight: 700;
+                            font-family:
+                              Courier New,
+                              monospace;
+                          "
+                        >
+                          {{ username }}
+                        </span>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- CTA (Stacked Properly) -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <!-- Button Row -->
+                  <tr>
+                    <td align="center" style="padding-bottom: 24px">
+                      <a
+                        href="{{ reset_password_url }}"
+                        style="
+                          display: inline-block;
+                          background-color: #135bec;
+                          color: #ffffff;
+                          text-decoration: none;
+                          font-size: 16px;
+                          font-weight: 700;
+                          padding: 16px 40px;
+                          border-radius: 8px;
+                          max-width: 320px;
+                          width: 100%;
+                        "
+                      >
+                        Get Started
+                      </a>
+                    </td>
+                  </tr>
+
+                  <!-- Secondary Link Row -->
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-size: 14px; color: #94a3b8; line-height: 1.6"
+                    >
+                      To set up your secure password, click here:<br />
+                      <a
+                        href="{{ reset_password_url }}"
+                        style="color: #135bec; text-decoration: none"
+                      >
+                        Reset password
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <!-- End Main Container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

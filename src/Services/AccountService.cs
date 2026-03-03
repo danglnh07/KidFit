@@ -1,66 +1,55 @@
-using KidFit.Dtos;
+using FluentValidation;
 using KidFit.Models;
 using KidFit.Shared.Constants;
 using KidFit.Shared.Exceptions;
+using KidFit.Shared.Queries;
+using KidFit.Shared.TaskRequests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TickerQ.Utilities;
 using TickerQ.Utilities.Entities;
 using TickerQ.Utilities.Interfaces.Managers;
+using X.PagedList;
 
 namespace KidFit.Services
 {
     public class AccountService(UserManager<ApplicationUser> userManager,
-                                RoleManager<IdentityRole> roleManager,
+                                IValidator<ApplicationUser> accountValidator,
                                 ITimeTickerManager<TimeTickerEntity> scheduler,
                                 ILogger<AccountService> logger)
     {
-        // Since we use IdentityUser, UserManager already implement CRUD for us
+        // Dependencies
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+        private readonly IValidator<ApplicationUser> _accountValidator = accountValidator;
         private readonly ITimeTickerManager<TimeTickerEntity> _scheduler = scheduler;
         private readonly ILogger<AccountService> _logger = logger;
 
-        // Since we need to fetch role from UserManager, using AutoMapper wouldn't be possible,
-        // so we create our own mapper here
-        private async Task<ViewAccountDto> MapFromModelAsync(ApplicationUser account)
-        {
-            var dto = new ViewAccountDto()
-            {
-                Id = account.Id,
-                Username = account.UserName ?? "",
-                FullName = account.FullName ?? "",
-                Email = account.Email ?? "",
-                AvatarUrl = account.AvatarUrl,
-            };
+        // Task configs
+        private readonly int taskExecTimeInSecs = 10;
+        private readonly int taskRetries = 3;
+        private readonly int[] taskRetryIntervals = [60, 300, 900];
 
-            // Get role from account
-            var roles = await _userManager.GetRolesAsync(account);
-            dto.Role = roles.FirstOrDefault() ?? "";
-            return dto;
-        }
-
-        public async Task CreateAccountAsync(CreateAccountDto req)
+        public async Task CreateAccountAsync(ApplicationUser account, Role role)
         {
-            // Map from DTO to model
-            var account = new ApplicationUser()
+            // Validate account
+            var validationResult = _accountValidator.Validate(account);
+            if (!validationResult.IsValid)
             {
-                Email = req.Email,
-                UserName = req.Username,
-                FullName = req.FullName,
-                IsActive = true,
-            };
+                var message = "Failed to create account: model validation failed";
+                List<string> errors = [.. validationResult.Errors.Select(e => e.ErrorMessage)];
+                throw Shared.Exceptions.ValidationException.Create(message, errors);
+            }
 
             // Use user manager to create account without password
             var createAccResult = await _userManager.CreateAsync(account);
-            if (!createAccResult.Succeeded || createAccResult.Errors.Count() != 0)
+            if (!createAccResult.Succeeded)
             {
-                throw IdentityException.Create("Create acount failed", createAccResult.Errors);
+                throw IdentityException.Create("Create account failed", createAccResult.Errors);
             }
 
             // Assign role to user
-            var assignRoleResult = await _userManager.AddToRoleAsync(account, req.Role.ToString());
-            if (!assignRoleResult.Succeeded || assignRoleResult.Errors.Count() != 0)
+            var assignRoleResult = await _userManager.AddToRoleAsync(account, role.ToString());
+            if (!assignRoleResult.Succeeded)
             {
                 throw IdentityException.Create("Create acount failed", assignRoleResult.Errors);
             }
@@ -72,57 +61,101 @@ namespace KidFit.Services
             await _scheduler.AddAsync(new TimeTickerEntity
             {
                 Function = "SendWelcomeEmail",
-                ExecutionTime = DateTime.UtcNow.AddSeconds(10),
-                Request = TickerHelper.CreateTickerRequest(new WelcomeEmailRequest()
+                ExecutionTime = DateTime.UtcNow.AddSeconds(taskExecTimeInSecs),
+                Request = TickerHelper.CreateTickerRequest(new SendWelcomeEmailRequest()
                 {
-                    Id = account.Id,
-                    Username = account.UserName,
-                    Email = account.Email,
                     Fullname = account.FullName,
-                    Token = resetToken
+                    Email = account.Email!,
+                    Username = account.UserName!,
+                    Token = resetToken,
+                    Id = account.Id,
                 }),
                 Description = $"Send welcome email to {account.Email}",
-                Retries = 3,
-                RetryIntervals = [60, 300, 900],
+                Retries = taskRetries,
+                RetryIntervals = taskRetryIntervals,
             });
         }
 
-        public async Task<ViewAccountDto?> GetAccountById(string id)
+        public async Task<ApplicationUser?> GetAccountByIdAsync(string id, bool allowInactive = false)
         {
             var account = await _userManager.FindByIdAsync(id);
-            if (account is null) return null;
-            return await MapFromModelAsync(account);
+            if (allowInactive) return account;
+            return account is null || !account.IsActive ? null : account;
         }
 
-        public async Task<ViewAccountDto> UpdateAccount(string id, UpdateAccountDto req)
+        public async Task<Role> GetRoleByAccount(ApplicationUser account)
+        {
+            var roles = await _userManager.GetRolesAsync(account);
+            Enum.TryParse(roles.FirstOrDefault(), out Role role);
+            return role;
+        }
+
+        public async Task<IPagedList<ApplicationUser>> GetAllAccountsAsync(QueryParam<ApplicationUser> param, bool allowInactive = false)
+        {
+            // Build the query
+            var query = _userManager.Users.AsQueryable();
+
+            if (!allowInactive)
+            {
+                query = query.Where(u => u.IsActive);
+            }
+
+            if (param.OrderBy is not null && param.IsAsc is not null)
+            {
+                query = param.IsAsc == true
+                    ? query.OrderBy(param.OrderBy)
+                    : query.OrderByDescending(param.OrderBy);
+            }
+
+            // Get all accounts 
+            return await query.ToPagedListAsync(param.Page, param.Size);
+        }
+
+        // This method will ignore password regardless of its value
+        // Please use the ChangePassword() method for password update
+        // Same case with deactive/activate account
+        public async Task<ApplicationUser> UpdateAccountAsync(string id, ApplicationUser req)
         {
             // Get entity from database by ID
-            var account = await _userManager.FindByIdAsync(id) ?? throw NotFoundException.Create(typeof(ApplicationUser).Name);
+            var account = await _userManager.FindByIdAsync(id);
 
-            if (req.Username is not null)
+            if (account is null)
             {
-                var result = await _userManager.SetUserNameAsync(account, req.Username);
-                if (!result.Succeeded || result.Errors.Count() != 0)
+                throw NotFoundException.Create(typeof(ApplicationUser).Name);
+            }
+            else if (!account.IsActive)
+            {
+                // Even if this method is called by admin -> not allowed
+                throw ForbiddenException.Create("Update account failed: account is inactive");
+            }
+
+            // Update username
+            if (!string.IsNullOrEmpty(req.UserName))
+            {
+                var result = await _userManager.SetUserNameAsync(account, req.UserName);
+                if (!result.Succeeded)
                 {
                     throw IdentityException.Create("Update account failed: failed to set username", result.Errors);
                 }
             }
 
-            if (req.Email is not null)
+            // Update email
+            if (!string.IsNullOrEmpty(req.Email))
             {
                 var result = await _userManager.SetEmailAsync(account, req.Email);
-                if (!result.Succeeded || result.Errors.Count() != 0)
+                if (!result.Succeeded)
                 {
                     throw IdentityException.Create("Update account failed: failed to set email", result.Errors);
                 }
             }
 
-            if (req.AvatarUrl is not null)
+            // Update other custom fields
+            if (!string.IsNullOrEmpty(req.AvatarUrl))
             {
                 account.AvatarUrl = req.AvatarUrl;
             }
 
-            if (req.FullName is not null)
+            if (!string.IsNullOrEmpty(req.FullName))
             {
                 account.FullName = req.FullName;
             }
@@ -131,37 +164,63 @@ namespace KidFit.Services
 
             // Update account
             var res = await _userManager.UpdateAsync(account);
-            if (!res.Succeeded || res.Errors.Count() != 0)
+            if (!res.Succeeded)
             {
                 throw IdentityException.Create("Update acount failed", res.Errors);
             }
 
-            return await MapFromModelAsync(account);
+            return account;
         }
 
-        public async Task DeactivateAccount(string id)
+        public async Task DeactivateAccountAsync(string id)
         {
             // Get account by ID
             var account = await _userManager.FindByIdAsync(id) ?? throw NotFoundException.Create(typeof(ApplicationUser).Name);
+            if (!account.IsActive) return;
 
             // Update IsActive to false
             account.IsActive = false;
             account.TimeUpdated = DateTimeOffset.UtcNow;
             var result = await _userManager.UpdateAsync(account);
-            if (!result.Succeeded || result.Errors.Count() != 0)
+            if (!result.Succeeded)
             {
                 throw IdentityException.Create("Deactivate account failed", result.Errors);
             }
         }
 
-        public async Task ChangePassword(string id, string oldPassword, string newPassword)
+        public async Task ActivateAccountAsync(string id)
         {
             // Get account by ID
             var account = await _userManager.FindByIdAsync(id) ?? throw NotFoundException.Create(typeof(ApplicationUser).Name);
+            if (account.IsActive) return;
+
+            // Update IsActive to true
+            account.IsActive = true;
+            account.TimeUpdated = DateTimeOffset.UtcNow;
+            var result = await _userManager.UpdateAsync(account);
+            if (!result.Succeeded)
+            {
+                throw IdentityException.Create("Activate account failed", result.Errors);
+            }
+        }
+
+        public async Task ChangePasswordAsync(string id, string oldPassword, string newPassword)
+        {
+            // Get account by ID
+            var account = await _userManager.FindByIdAsync(id);
+            if (account is null)
+            {
+                throw NotFoundException.Create(typeof(ApplicationUser).Name);
+            }
+            else if (!account.IsActive)
+            {
+                // Even if this method is called by admin -> not allowed
+                throw ForbiddenException.Create("Change password failed: account is inactive");
+            }
 
             // Update password
             var result = await _userManager.ChangePasswordAsync(account, oldPassword, newPassword);
-            if (!result.Succeeded || result.Errors.Count() != 0)
+            if (!result.Succeeded)
             {
                 throw IdentityException.Create("Change password failed", result.Errors);
             }
@@ -169,32 +228,17 @@ namespace KidFit.Services
             // Record changes with TimeUpdated
             account.TimeUpdated = DateTimeOffset.UtcNow;
             var res = await _userManager.UpdateAsync(account);
-            if (!res.Succeeded || res.Errors.Count() != 0)
+            if (!res.Succeeded)
             {
                 throw IdentityException.Create("Change password failed", res.Errors);
             }
         }
 
-        public async Task<bool> AnyAccountExist()
+        public async Task<int> CountAccountsAsync(bool allowInactive = false)
         {
-            return await _userManager.Users.AnyAsync();
-        }
-
-        public async Task CreateApplicationRole(Role role)
-        {
-            // Check if role already exists
-            if (await _roleManager.RoleExistsAsync(role.ToString()))
-            {
-                _logger.LogWarning($"Role {role} already exists");
-                return;
-            }
-
-            // Create role
-            var result = await _roleManager.CreateAsync(new IdentityRole(role.ToString()));
-            if (!result.Succeeded || result.Errors.Count() != 0)
-            {
-                throw IdentityException.Create("Failed to create role", result.Errors);
-            }
+            var query = _userManager.Users.AsQueryable();
+            if (!allowInactive) query = query.Where(u => u.IsActive);
+            return await query.CountAsync();
         }
     }
 }

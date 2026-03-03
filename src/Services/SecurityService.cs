@@ -19,7 +19,7 @@ namespace KidFit.Services
 
     public class SecurityService
     {
-        public static string GenerateJWTToken(JwtParams param, string secret)
+        public static string GenerateJwtToken(JwtParams param, string secret)
         {
             // Create token claims
             var claims = new List<Claim>

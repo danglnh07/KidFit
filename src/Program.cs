@@ -1,13 +1,12 @@
-using System.Security.Claims;
 using System.Text;
 using DotNetEnv;
 using FluentValidation;
 using KidFit.Data;
-using KidFit.Dtos;
 using KidFit.Models;
 using KidFit.Repositories;
 using KidFit.Services;
 using KidFit.Shared.Constants;
+using KidFit.Validators;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +16,11 @@ using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
 
 // Load .env
+// This is just for local development, since we can use Docker to inject environment variables
+// so no need to check if this failed or not
 Env.Load();
 
+// Create builder
 var builder = WebApplication.CreateBuilder(args);
 
 // Register controllers with views
@@ -46,17 +48,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
+// Configure cookie authentication
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Auth/Login";
-    options.AccessDeniedPath = "/Auth/AccessDenied";
+    // options.AccessDeniedPath = "/Auth/AccessDenied";
 });
 
 // Add JWT Authentication
 var jwtSecret = builder.Configuration["AppSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
 var jwtIssuer = builder.Configuration["AppSettings:Issuer"] ?? "KidFit";
 var jwtAudience = builder.Configuration["AppSettings:Audience"] ?? "KidFit";
-
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -75,19 +77,10 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOnly", policy => policy.RequireRole(Role.ADMIN.ToString()))
     .AddPolicy("StaffOnly", policy => policy.RequireRole(Role.STAFF.ToString()))
-    .AddPolicy("AdminOrStaff", policy => policy.RequireRole(Role.ADMIN.ToString(), Role.STAFF.ToString()))
-    .AddPolicy("AdminOrSelf", policy => policy.RequireAssertion(context =>
-    {
-        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    .AddPolicy("AdminOrStaff", policy => policy.RequireRole(Role.ADMIN.ToString(), Role.STAFF.ToString()));
 
-        var routeId = context.Resource switch
-        {
-            HttpContext http => http.Request.RouteValues["id"]?.ToString(),
-            _ => null
-        };
-
-        return userId == routeId || context.User.IsInRole(Role.ADMIN.ToString());
-    }));
+// Add custom claims factory
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, CustomClaimsPrincipalFactory>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -105,15 +98,16 @@ builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<LessonService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<MailService>();
-// builder.Services.AddScoped<ITimeTickerManager<TimeTickerEntity>, >();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Register validators
 builder.Services.AddScoped<IValidator<CardCategory>, CardCategoryValidator>();
 builder.Services.AddScoped<IValidator<Card>, CardValidator>();
 builder.Services.AddScoped<IValidator<Module>, ModuleValidator>();
 builder.Services.AddScoped<IValidator<Lesson>, LessonValidator>();
-builder.Services.AddScoped<IValidator<LoginRequestDto>, LoginRequestValidator>();
+builder.Services.AddScoped<IValidator<ApplicationUser>, ApplicationUserValidator>();
 
 // Add TickerQ
 builder.Services.AddTickerQ(options =>
@@ -125,14 +119,11 @@ builder.Services.AddTickerQ(options =>
         schedulerOptions.NodeIdentifier = "notification-server";
     });
 
-    // options.SetExceptionHandler<NotificationExceptionHandler>();
-
-    // Entity Framework persistence using built-in TickerQDbContext
     // Dashboard
     options.AddDashboard(dashboardOptions =>
     {
         dashboardOptions.SetBasePath("/admin/tickerq");
-        dashboardOptions.WithBasicAuth("admin", "secure-password");
+        dashboardOptions.WithBasicAuth("admin", builder.Configuration["AppSettings:DefaultAdminPassword"]);
     });
 });
 
@@ -182,12 +173,22 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseHttpLogging();
-    // app.UseExceptionHandler("/Home/Error");
+    // app.UseSwagger();
+    // app.UseSwaggerUI();
+    // app.UseHttpLogging();
+
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    // app.UseHsts();
+    app.UseHsts();
+
+    // Use developer exception handler
+    app.UseDeveloperExceptionPage();
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
+}
+else
+{
+    app.UseExceptionHandler("/Error/500");
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
+    app.UseHsts();
 }
 
 app.UseTickerQ();
@@ -212,15 +213,17 @@ using (var scope = app.Services.CreateScope())
         var provider = scope.ServiceProvider;
         var context = provider.GetRequiredService<AppDbContext>();
         var accountService = provider.GetRequiredService<AccountService>();
+        var roleService = provider.GetRequiredService<RoleService>();
         var uow = provider.GetRequiredService<IUnitOfWork>();
         var logger = provider.GetRequiredService<ILogger<DbInitilizer>>();
         var config = provider.GetRequiredService<IConfiguration>();
 
-        await DbInitilizer.InitializeAsync(context, accountService, uow, config, logger);
+        await DbInitilizer.InitializeAsync(context, accountService, roleService, uow, config, logger);
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Failed to initialize database: {ex.Message}");
+        return;
     }
 }
 
